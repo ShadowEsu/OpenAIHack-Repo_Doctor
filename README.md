@@ -1,2 +1,2 @@
 # OpenAI-Hackathon-
-Open AI Hackathon &lt;July 13 - 21 2026> Devpost Submission GitHub 
+Open AI Hackathon &lt;July 13 - 21 2026> Devpost Submission GitHub gooodluckkk "ps
