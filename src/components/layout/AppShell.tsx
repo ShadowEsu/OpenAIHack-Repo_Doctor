@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { usePathname } from "next/navigation";
 import { Sidebar } from "./Sidebar";
 import { TopBar } from "./TopBar";
@@ -13,9 +13,9 @@ interface AppShellProps {
 
 export function AppShell({ children, repositoryName }: AppShellProps) {
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
+  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const pathname = usePathname();
 
-  // Extract repoId from URL: /app/repos/:repoId/...
   const repoMatch = pathname.match(/^\/app\/repos\/([^/]+)/);
   const repositoryId = repoMatch ? repoMatch[1] : undefined;
 
@@ -23,16 +23,33 @@ export function AppShell({ children, repositoryName }: AppShellProps) {
     setMobileNavOpen((prev) => !prev);
   }, []);
 
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      setMousePosition({ x: e.clientX, y: e.clientY });
+    };
+    window.addEventListener("mousemove", handleMouseMove);
+    return () => window.removeEventListener("mousemove", handleMouseMove);
+  }, []);
+
   return (
-    <div className="flex h-screen overflow-hidden bg-background">
-      {/* Desktop sidebar — full width ≥1280px, collapsed 1024-1279px */}
-      <aside className="hidden lg:flex">
+    <div className="grain flex h-screen overflow-hidden bg-background">
+      {/* Ambient glow */}
+      <div
+        className="pointer-events-none fixed inset-0 z-0 transition-opacity duration-500"
+        style={{
+          background: `radial-gradient(800px circle at ${mousePosition.x}px ${mousePosition.y}px, var(--accent-glow), transparent 40%)`,
+          opacity: 0.3,
+        }}
+      />
+
+      {/* Desktop sidebar */}
+      <aside className="relative z-10 hidden lg:flex">
         <Sidebar repositoryId={repositoryId} />
       </aside>
 
       {/* Main content area */}
-      <div className="flex flex-1 flex-col overflow-hidden">
-        {/* Mobile top bar — visible <1024px */}
+      <div className="relative z-10 flex flex-1 flex-col overflow-hidden">
+        {/* Mobile top bar */}
         <header className="lg:hidden">
           <TopBar
             onMenuToggle={toggleMobileNav}
@@ -40,13 +57,15 @@ export function AppShell({ children, repositoryName }: AppShellProps) {
           />
         </header>
 
-        {/* Scrollable content */}
+        {/* Scrollable content with page transition */}
         <main id="main-content" className="flex-1 overflow-y-auto p-6 lg:p-8">
-          {children}
+          <div className="animate-fade-in-up">
+            {children}
+          </div>
         </main>
 
-        {/* Mobile bottom nav — visible <1024px */}
-        <nav className="lg:hidden">
+        {/* Mobile bottom nav */}
+        <nav className="relative z-10 lg:hidden">
           <MobileNav repositoryId={repositoryId} />
         </nav>
       </div>

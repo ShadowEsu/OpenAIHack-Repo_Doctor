@@ -27,7 +27,7 @@ export function MobileNav({ repositoryId }: MobileNavProps) {
   const pathname = usePathname();
 
   return (
-    <div className="flex h-14 items-center justify-around border-t border-border bg-surface">
+    <div className="glass-strong flex h-16 items-center justify-around border-t border-border">
       {navItems.map((item) => {
         const href = repositoryId
           ? `/app/repos/${repositoryId}${item.segment ? "/" + item.segment : ""}`
@@ -40,20 +40,27 @@ export function MobileNav({ repositoryId }: MobileNavProps) {
             key={item.segment}
             href={href}
             className={cn(
-              "flex flex-col items-center gap-0.5 px-2 py-1 text-[10px] font-medium transition-colors",
+              "flex flex-col items-center gap-1 px-3 py-2 text-[10px] font-medium transition-all duration-200",
               isActive
                 ? "text-accent"
                 : "text-text-muted hover:text-text-secondary"
             )}
             aria-current={isActive ? "page" : undefined}
           >
-            <item.icon
+            <div
               className={cn(
-                "h-5 w-5",
-                isActive && "text-accent"
+                "flex h-8 w-8 items-center justify-center rounded-lg transition-all duration-200",
+                isActive && "bg-accent-light"
               )}
-              aria-hidden="true"
-            />
+            >
+              <item.icon
+                className={cn(
+                  "h-4 w-4 transition-colors",
+                  isActive && "text-accent"
+                )}
+                aria-hidden="true"
+              />
+            </div>
             <span>{item.label}</span>
           </Link>
         );
