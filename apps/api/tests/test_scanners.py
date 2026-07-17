@@ -42,6 +42,8 @@ def test_secrets_scanner_masks_values(messy_repo):
     for f in secret_findings:
         assert "sk-proj-Zz9Xy8Ww7Vv6Uu5Tt4Ss3Rr2Qq1Pp0Oo" not in (f.evidence or "")
         assert not f.safe_for_ai
+        assert not f.repairable
+        assert f.repair_type is None
 
 
 def test_mask_secret():
@@ -96,3 +98,13 @@ def test_all_scanners_run_without_crashing(messy_repo):
     ctx = _ctx(messy_repo)
     for scanner_cls in ALL_SCANNERS:
         scanner_cls().scan(ctx)  # must not raise
+
+
+def test_every_advertised_repair_has_a_treatment_generator(messy_repo):
+    from app.treatments import TREATMENT_GENERATORS
+
+    ctx = _ctx(messy_repo)
+    findings = [finding for scanner_cls in ALL_SCANNERS for finding in scanner_cls().scan(ctx)]
+    advertised = {finding.repair_type for finding in findings if finding.repairable}
+    assert None not in advertised
+    assert advertised <= set(TREATMENT_GENERATORS)

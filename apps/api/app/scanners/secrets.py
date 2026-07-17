@@ -135,6 +135,9 @@ class SecretsScanner(RepositoryScanner):
             end_line=line,
             raw_metadata={"masked_value": masked, "pattern": label},
             safe_for_ai=False,  # never ship even masked context lines to AI
-            repairable=True,
-            repair_type="move_to_environment_variable",
+            # Moving a literal credential into configuration requires contextual
+            # source edits and secret rotation. No safe generator implements that
+            # workflow yet, so do not advertise an automatic treatment.
+            repairable=False,
+            repair_type=None,
         )

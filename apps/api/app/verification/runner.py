@@ -152,7 +152,9 @@ def run_verification(working_copy: Path, changed_files: list[str]) -> Verificati
         elif "type-check" in scripts:
             result.typecheck = _run(["npm", "run", "type-check", "--silent"], working_copy)
         if "test" in scripts:
-            result.tests = _run(["npm", "test", "--silent", "--", "--run"], working_copy)
+            # Run the repository's declared command exactly. Extra runner-specific
+            # flags (for example Vitest's --run) can break Jest or custom scripts.
+            result.tests = _run(["npm", "test", "--silent"], working_copy)
         if "build" in scripts:
             result.build = _run(["npm", "run", "build", "--silent"], working_copy)
 
