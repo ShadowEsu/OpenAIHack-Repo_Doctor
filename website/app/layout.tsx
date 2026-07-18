@@ -13,8 +13,21 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Repo Doctor",
-  description: "Repo Doctor",
+  title: "Repo Doctor — An AI health clinic for messy codebases",
+  description:
+    "Repo Doctor examines messy repositories, explains what is wrong, and safely repairs maintainability issues one treatment at a time.",
+  openGraph: {
+    title: "Repo Doctor — An AI health clinic for messy codebases",
+    description:
+      "Repo Doctor examines messy repositories, explains what is wrong, and safely repairs maintainability issues one treatment at a time.",
+    type: "website",
+  },
+  twitter: {
+    card: "summary",
+    title: "Repo Doctor — An AI health clinic for messy codebases",
+    description:
+      "Repo Doctor examines messy repositories, explains what is wrong, and safely repairs maintainability issues one treatment at a time.",
+  },
 };
 
 export default function RootLayout({

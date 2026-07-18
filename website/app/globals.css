@@ -36,6 +36,13 @@ body {
   font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
 }
 
+@layer base {
+  a,
+  button {
+    @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background;
+  }
+}
+
 .hero-blob {
   position: absolute;
   z-index: -1;
