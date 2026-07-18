@@ -11,7 +11,7 @@ export function CountUp({ value, suffix = "" }: { value: number; suffix?: string
   useEffect(() => {
     if (!inView) return;
     if (reduceMotion) { setCount(value); return; }
-    const controls = animate(0, value, { duration: 1.2, ease: "easeOut", onUpdate: (latest) => setCount(Math.round(latest)) });
+    const controls = animate(0, value, { type: "spring", stiffness: 92, damping: 20, mass: 0.7, onUpdate: (latest) => setCount(Math.round(latest)) });
     return () => controls.stop();
   }, [inView, reduceMotion, value]);
   return <motion.span ref={ref}>{count}{suffix}</motion.span>;

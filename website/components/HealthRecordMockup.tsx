@@ -22,7 +22,7 @@ export function HealthRecordMockup() {
               <span className="rounded border border-accent/20 px-2 py-0.5 font-mono text-xs text-text-muted">main</span>
             </div>
           </div>
-          <button type="button" className="shrink-0 rounded border border-accent/30 px-3 py-1.5 font-mono text-xs text-accent">Re-examine</button>
+          <span className="shrink-0 rounded border border-accent/30 px-3 py-1.5 font-mono text-xs text-accent">Re-examine</span>
         </header>
 
         <div className="grid gap-5 border-b border-accent/15 py-5 sm:grid-cols-[auto_1fr] sm:items-center">

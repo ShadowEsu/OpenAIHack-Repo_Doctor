@@ -46,18 +46,37 @@ body {
 .hero-blob {
   position: absolute;
   z-index: -1;
-  width: 22rem;
-  height: 22rem;
+  width: 26rem;
+  height: 26rem;
   border-radius: 9999px;
-  background: linear-gradient(135deg, rgb(26 192 173 / 0.13), rgb(14 107 96 / 0.08));
-  filter: blur(64px);
+  filter: blur(76px);
+  will-change: transform;
+  animation: hero-drift 20s ease-in-out infinite;
+}
+
+.hero-blob-one {
+  background: rgb(26 192 173 / 0.12);
   right: 8%;
   top: 12%;
 }
 
+.hero-blob-two {
+  width: 20rem;
+  height: 20rem;
+  background: rgb(14 107 96 / 0.16);
+  left: 33%;
+  bottom: 2%;
+  animation-delay: -9s;
+}
+
+@keyframes hero-drift {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
+  50% { transform: translate3d(28px, -18px, 0) scale(1.08); }
+}
+
 .cta-primary {
   box-shadow: 0 0 0 rgb(26 192 173 / 0);
-  animation: cta-glow 5s ease-in-out infinite;
+  animation: cta-glow 3.6s ease-in-out infinite;
   transition: transform 180ms ease, box-shadow 180ms ease, background-color 180ms ease, color 180ms ease;
 }
 
@@ -85,5 +104,6 @@ body {
   .marquee-track {
     animation: none;
   }
-  .cta-primary { animation: none; }
+  .cta-primary,
+  .hero-blob { animation: none; }
 }
