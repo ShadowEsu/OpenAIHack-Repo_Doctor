@@ -12,6 +12,10 @@
   --status-success: #3ddc97;
 }
 
+html {
+  font-size: 18px;
+}
+
 @theme inline {
   --color-background: var(--background);
   --color-background-elevated: var(--background-elevated);
@@ -31,6 +35,28 @@ body {
   color: var(--text-primary);
   font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
 }
+
+.hero-blob {
+  position: absolute;
+  z-index: -1;
+  width: 22rem;
+  height: 22rem;
+  border-radius: 9999px;
+  background: linear-gradient(135deg, rgb(26 192 173 / 0.13), rgb(14 107 96 / 0.08));
+  filter: blur(64px);
+  right: 8%;
+  top: 12%;
+}
+
+.cta-primary {
+  box-shadow: 0 0 0 rgb(26 192 173 / 0);
+  animation: cta-glow 5s ease-in-out infinite;
+  transition: transform 180ms ease, box-shadow 180ms ease, background-color 180ms ease, color 180ms ease;
+}
+
+.cta-primary:hover { transform: scale(1.03); box-shadow: 0 0 26px rgb(26 192 173 / .36); animation-play-state: paused; }
+
+@keyframes cta-glow { 50% { box-shadow: 0 0 18px rgb(26 192 173 / .2); } }
 
 .marquee-track {
   display: flex;
@@ -52,4 +78,5 @@ body {
   .marquee-track {
     animation: none;
   }
+  .cta-primary { animation: none; }
 }
