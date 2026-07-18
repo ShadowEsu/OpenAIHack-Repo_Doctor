@@ -55,7 +55,7 @@ body {
 }
 
 .hero-blob-one {
-  background: rgb(26 192 173 / 0.12);
+  background: rgb(26 192 173 / 0.18);
   right: 8%;
   top: 12%;
 }
@@ -63,7 +63,7 @@ body {
 .hero-blob-two {
   width: 20rem;
   height: 20rem;
-  background: rgb(14 107 96 / 0.16);
+  background: rgb(14 107 96 / 0.22);
   left: 33%;
   bottom: 2%;
   animation-delay: -9s;

@@ -12,5 +12,5 @@ import { WhatWeDo } from "@/components/sections/what-we-do";
 import { WhoItsFor } from "@/components/sections/who-its-for";
 
 export default function Home() {
-  return <div className="overflow-hidden bg-background text-text-primary"><Navbar /><main><Hero /><TechMarquee /><WhatWeDo /><Outcomes /><HowItWorks /><ExampleReport /><BeforeAfter /><WhoItsFor /><Privacy /><FinalCta /></main><Footer /></div>;
+  return <div className="overflow-hidden text-text-primary"><Navbar /><main><Hero /><TechMarquee /><WhatWeDo /><Outcomes /><HowItWorks /><ExampleReport /><BeforeAfter /><WhoItsFor /><Privacy /><FinalCta /></main><Footer /></div>;
 }

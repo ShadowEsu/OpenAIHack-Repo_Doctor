@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { PixelGrid } from "@/components/PixelGrid";
 import { SmoothScroll } from "@/components/SmoothScroll";
 import "./globals.css";
 
@@ -41,7 +42,12 @@ export default function RootLayout({
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col"><SmoothScroll>{children}</SmoothScroll></body>
+      <body className="min-h-full flex flex-col" suppressHydrationWarning>
+        <PixelGrid />
+        <div className="relative z-10 flex min-h-full flex-col">
+          <SmoothScroll>{children}</SmoothScroll>
+        </div>
+      </body>
     </html>
   );
 }
