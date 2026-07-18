@@ -12,6 +12,7 @@ export function SmoothScroll({ children }: Readonly<{ children: React.ReactNode 
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
     const lenis = new Lenis({ lerp: 0.09, smoothWheel: true });
+    window.__repoDoctorLenis = lenis;
     const scroller = document.documentElement;
     lenis.on("scroll", ScrollTrigger.update);
 
@@ -34,6 +35,7 @@ export function SmoothScroll({ children }: Readonly<{ children: React.ReactNode 
 
     return () => {
       gsap.ticker.remove(tick);
+      delete window.__repoDoctorLenis;
       lenis.destroy();
       ScrollTrigger.scrollerProxy(scroller, {
         scrollTop: () => window.scrollY,
