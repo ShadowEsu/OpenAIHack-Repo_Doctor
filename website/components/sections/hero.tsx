@@ -103,7 +103,7 @@ export function Hero() {
           <a href="#health-report" className={`${interactionClasses.primaryButton} cta-primary rounded-md bg-accent px-5 py-3 text-center font-semibold text-background hover:bg-accent-secondary hover:text-text-primary`}>
             Examine a Repository
           </a>
-          <a href="#diagnoses" className={`${interactionClasses.secondaryButton} rounded-md border border-accent/30 px-5 py-3 text-center font-semibold hover:border-accent hover:text-accent`}>
+          <a href="#health-report" className={`${interactionClasses.secondaryButton} rounded-md border border-accent/30 px-5 py-3 text-center font-semibold hover:border-accent hover:text-accent`}>
             View Sample Health Record
           </a>
         </div>

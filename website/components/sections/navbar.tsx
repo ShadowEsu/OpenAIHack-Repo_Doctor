@@ -8,10 +8,11 @@ import { WaitlistCta } from "@/components/WaitlistCta";
 
 const links = [
   ["Overview", "#overview"],
-  ["Diagnoses", "#diagnoses"],
-  ["Repository Map", "#how-it-works"],
+  ["Features", "#features"],
+  ["Diagnoses", "#health-report"],
   ["Treatments", "#verification"],
   ["How it Works", "#how-it-works"],
+  ["Compare", "#comparison"],
 ] as const;
 
 export function Navbar() {
@@ -83,7 +84,7 @@ export function Navbar() {
           Repo <span className="text-accent">Doctor</span>
         </a>
 
-        <div className="hidden items-center gap-6 lg:flex">
+        <div className="hidden items-center gap-6 xl:flex">
           {links.map(([label, href]) => (
             <motion.a
               whileTap={reduceMotion ? {} : { scale: 0.96 }}
@@ -110,7 +111,7 @@ export function Navbar() {
           <a href="#health-report" onClick={(event) => onNavClick(event, "#health-report")} className={`hidden ${interactionClasses.primaryButton} rounded-md bg-accent px-4 py-2 text-sm font-semibold text-background hover:bg-accent-secondary hover:text-text-primary sm:block`}>
             Examine a Repository
           </a>
-          <button type="button" aria-expanded={open} aria-controls="mobile-navigation" onClick={() => setOpen((value) => !value)} className={`${interactionClasses.secondaryButton} rounded border border-accent/25 px-3 py-1.5 font-mono text-xs text-accent lg:hidden`}>
+          <button type="button" aria-expanded={open} aria-controls="mobile-navigation" onClick={() => setOpen((value) => !value)} className={`${interactionClasses.secondaryButton} rounded border border-accent/25 px-3 py-1.5 font-mono text-xs text-accent xl:hidden`}>
             Menu
           </button>
         </div>
@@ -124,7 +125,7 @@ export function Navbar() {
             animate={{ opacity: 1, y: 0 }}
             exit={reduceMotion ? {} : { opacity: 0, y: -8 }}
             transition={{ duration: 0.18, ease: "easeOut" }}
-            className="border-t border-accent/15 bg-background px-5 py-4 lg:hidden"
+            className="border-t border-accent/15 bg-background px-5 py-4 xl:hidden"
           >
             <div className="flex flex-col gap-1">
               {links.map(([label, href]) => (

@@ -2,6 +2,7 @@
 
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { FormEvent, useEffect, useId, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { interactionClasses } from "@/lib/interaction-classes";
 
 type WaitlistCtaProps = {
@@ -106,7 +107,7 @@ export function WaitlistCta({ className = "" }: WaitlistCtaProps) {
         Join the Demo
       </button>
 
-      <AnimatePresence>
+      {typeof document !== "undefined" && createPortal(<AnimatePresence>
         {open && (
           <motion.div
             className="fixed inset-0 z-[80] flex items-center justify-center bg-background/75 p-5 backdrop-blur-sm"
@@ -140,16 +141,16 @@ export function WaitlistCta({ className = "" }: WaitlistCtaProps) {
                 </div>
               ) : (
                 <>
-                  <div className="flex items-start justify-between gap-4">
+                  <div className="relative text-center">
                     <div>
                       <p className="font-mono text-xs uppercase tracking-[.16em] text-accent">Demo access</p>
                       <h2 id={headingId} className="mt-3 text-3xl font-bold tracking-[-.035em]">Get early access</h2>
                     </div>
-                    <button type="button" onClick={close} aria-label="Close early access form" className={`${interactionClasses.secondaryButton} rounded-md border border-accent/25 px-3 py-1.5 font-mono text-sm text-accent hover:border-accent`}>
+                    <button type="button" onClick={close} aria-label="Close early access form" className={`${interactionClasses.secondaryButton} absolute right-0 top-0 rounded-md border border-accent/25 px-3 py-1.5 font-mono text-sm text-accent hover:border-accent`}>
                       ×
                     </button>
                   </div>
-                  <p id={descriptionId} className="mt-3 text-text-muted">Join the list and we&apos;ll let you know when the Repo Doctor demo is ready.</p>
+                  <p id={descriptionId} className="mt-3 text-center text-text-muted">Join the list and we&apos;ll let you know when the Repo Doctor demo is ready.</p>
                   <form className="mt-7" onSubmit={submit} noValidate>
                     <label htmlFor="waitlist-email" className="font-mono text-xs uppercase tracking-[.12em] text-text-muted">Email address</label>
                     <input
@@ -176,7 +177,7 @@ export function WaitlistCta({ className = "" }: WaitlistCtaProps) {
             </motion.div>
           </motion.div>
         )}
-      </AnimatePresence>
+      </AnimatePresence>, document.body)}
     </>
   );
 }

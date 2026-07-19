@@ -64,7 +64,7 @@ export function Comparison() {
     <section id="comparison" className="mx-auto max-w-7xl px-5 py-24 lg:px-8">
       <motion.div {...reveal} className="max-w-3xl">
         <p className="font-mono text-xs uppercase tracking-[.16em] text-accent">How it compares</p>
-        <h2 className="mt-4 text-4xl font-bold tracking-[-.04em] sm:text-5xl">A clearer review path.</h2>
+        <h2 className="mt-4 text-4xl font-bold tracking-[-.04em] sm:text-5xl">RepoDoctor VS Everyone Else</h2>
         <p className="mt-5 text-lg leading-8 text-text-muted">A practical view of how different review approaches support diagnosis, repair, and verification.</p>
       </motion.div>
 
