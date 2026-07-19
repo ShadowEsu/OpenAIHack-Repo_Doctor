@@ -77,10 +77,9 @@ body {
 .cta-primary {
   box-shadow: 0 0 0 rgb(26 192 173 / 0);
   animation: cta-glow 3.6s ease-in-out infinite;
-  transition: transform 180ms ease, box-shadow 180ms ease, background-color 180ms ease, color 180ms ease;
 }
 
-.cta-primary:hover { transform: scale(1.03); box-shadow: 0 0 26px rgb(26 192 173 / .36); animation-play-state: paused; }
+.cta-primary:hover { animation-play-state: paused; }
 
 @keyframes cta-glow { 50% { box-shadow: 0 0 18px rgb(26 192 173 / .2); } }
 
@@ -98,9 +97,9 @@ body {
 .health-record-sweep { position: absolute; inset: -10% 0 auto; height: 2px; pointer-events: none; background: linear-gradient(90deg, transparent, rgb(26 192 173 / .14), transparent); animation: health-sweep 4.6s linear infinite; }
 .health-gauge::after { content: ""; display: block; width: 35%; height: 100%; background: linear-gradient(90deg, transparent, rgb(234 251 248 / .22), transparent); animation: gauge-sheen 4s ease-in-out infinite; }
 .health-spinner { animation: health-spin .7s linear infinite; }
-.health-examine-cta { box-shadow: 0 0 14px rgb(26 192 173 / .28); animation: health-cta-glow 3.6s ease-in-out infinite; transition: transform 180ms ease, box-shadow 180ms ease, background-color 180ms ease; }
+.health-examine-cta { box-shadow: 0 0 14px rgb(26 192 173 / .28); animation: health-cta-glow 3.6s ease-in-out infinite; }
 .health-examine-cta:not(:disabled) { cursor: pointer; }
-.health-examine-cta:not(:disabled):hover { transform: scale(1.04); box-shadow: 0 0 24px rgb(26 192 173 / .48); background-color: var(--accent-secondary); color: var(--text-primary); }
+.health-examine-cta:not(:disabled):hover { box-shadow: 0 0 24px rgb(26 192 173 / .48); background-color: var(--accent-secondary); color: var(--text-primary); }
 .health-examine-cta:hover .health-examine-icon { transform: rotate(90deg); }
 .health-examine-icon { display: inline-block; transition: transform 180ms ease; }
 .health-gauge-awaiting { outline: 1px dashed rgb(26 192 173 / .42); outline-offset: 3px; box-shadow: 0 0 22px rgb(26 192 173 / .09); }
@@ -126,6 +125,51 @@ body {
   }
 }
 
+@layer components {
+  button,
+  .interaction-button {
+    transition: transform 180ms ease-out, box-shadow 180ms ease-out, border-color 180ms ease-out, background-color 180ms ease-out, color 180ms ease-out;
+  }
+
+  @media (hover: hover) {
+    button:not(:disabled):hover,
+    .interaction-button:hover {
+      transform: scale(1.025);
+      box-shadow: 0 0 22px rgb(26 192 173 / .3);
+    }
+
+    .interaction-card:hover {
+      translate: 0 -4px;
+      border-color: rgb(26 192 173 / .55);
+      box-shadow: 0 18px 36px rgb(26 192 173 / .14);
+    }
+
+    .interaction-row:hover {
+      translate: 0 -2px;
+      border-color: rgb(26 192 173 / .45);
+      box-shadow: 0 8px 18px rgb(26 192 173 / .1);
+    }
+
+    .interaction-nav-link:hover {
+      color: var(--accent);
+    }
+  }
+
+  button:not(:disabled):active,
+  .interaction-button:active {
+    transform: scale(.98);
+  }
+
+  .interaction-card,
+  .interaction-row {
+    transition: translate 180ms ease-out, border-color 180ms ease-out, box-shadow 180ms ease-out, background-color 180ms ease-out;
+  }
+
+  .interaction-nav-link {
+    transition: color 180ms ease-out, opacity 180ms ease-out;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .marquee-track {
     animation: none;
@@ -137,4 +181,18 @@ body {
   .health-record-sweep,
   .health-gauge::after,
   .health-examine-cta { animation: none; }
+
+  button,
+  .interaction-button,
+  .interaction-card,
+  .interaction-row,
+  .interaction-nav-link { transition: none; }
+
+  button:not(:disabled):hover,
+  button:not(:disabled):active,
+  .interaction-button:hover,
+  .interaction-button:active { transform: none; }
+
+  .interaction-card:hover,
+  .interaction-row:hover { translate: none; }
 }

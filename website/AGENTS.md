@@ -4,6 +4,10 @@
 This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` before writing any code. Heed deprecation notices.
 <!-- END:nextjs-agent-rules -->
 
+## Interaction patterns
+
+Reuse `lib/interaction-classes.ts` for interactive UI: apply `primaryButton` or `secondaryButton` to CTA links, `hoverCard` to hover-relevant cards, `hoverRow` to interactive diagnostic rows, and `navLink` to navigation links. Their shared CSS lives in `app/globals.css`, includes hover/pressed feedback, and honors `prefers-reduced-motion`; do not recreate these effects per component.
+
 # Repo Doctor Website — Agent Instructions
 
 ## Stack
