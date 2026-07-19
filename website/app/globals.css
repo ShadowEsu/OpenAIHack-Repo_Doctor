@@ -69,6 +69,131 @@ body {
   animation-delay: -9s;
 }
 
+.hero-parallax-grid {
+  position: absolute;
+  top: 1.5rem;
+  left: 1.5rem;
+  width: 17rem;
+  height: 14rem;
+  opacity: .7;
+  background-image: radial-gradient(circle, rgb(26 192 173 / .85) 1px, transparent 1.5px);
+  background-size: 18px 18px;
+  mask-image: linear-gradient(135deg, black, transparent 82%);
+}
+
+.hero-parallax-lines {
+  position: absolute;
+  right: 7%;
+  top: 1.75rem;
+  width: 12rem;
+  height: 8rem;
+  opacity: .7;
+  background: repeating-linear-gradient(0deg, transparent 0 20px, rgb(26 192 173 / .65) 20px 21px, transparent 21px 28px);
+  rotate: -16deg;
+}
+
+.hero-parallax-nodes {
+  position: absolute;
+  right: 5%;
+  bottom: 2.5rem;
+  left: 5%;
+  height: 9rem;
+  opacity: .7;
+}
+
+.hero-parallax-nodes span {
+  position: absolute;
+  width: .42rem;
+  height: .42rem;
+  border-radius: 9999px;
+  background: var(--accent);
+  box-shadow: 0 0 12px rgb(26 192 173 / .75);
+}
+
+.hero-parallax-nodes span:nth-child(1) { top: 3rem; left: 4%; }
+.hero-parallax-nodes span:nth-child(2) { top: 5.75rem; left: 21%; }
+.hero-parallax-nodes span:nth-child(3) { top: 1.8rem; left: 38%; }
+.hero-parallax-nodes span:nth-child(4) { top: 6.2rem; left: 55%; }
+.hero-parallax-nodes span:nth-child(5) { top: 3.4rem; left: 72%; }
+.hero-parallax-nodes span:nth-child(6) { right: 3%; bottom: .65rem; }
+.hero-parallax-nodes i {
+  position: absolute;
+  height: 1px;
+  background: rgb(26 192 173 / .7);
+}
+.hero-parallax-nodes i:nth-child(7) { top: 3.25rem; left: 4.5%; width: 17%; rotate: 10deg; }
+.hero-parallax-nodes i:nth-child(8) { top: 5.9rem; left: 21.5%; width: 17%; rotate: -15deg; }
+.hero-parallax-nodes i:nth-child(9) { top: 2.05rem; left: 38.5%; width: 17%; rotate: 17deg; }
+.hero-parallax-nodes i:nth-child(10) { top: 6.4rem; left: 55.5%; width: 17%; rotate: -14deg; }
+.hero-parallax-nodes i:nth-child(11) { top: 3.6rem; left: 72.5%; width: 21%; rotate: 13deg; }
+
+.hero-parallax-marks {
+  position: absolute;
+  top: 43%;
+  left: 39%;
+  display: grid;
+  gap: .55rem;
+  opacity: .7;
+  rotate: 90deg;
+}
+
+.hero-parallax-marks span {
+  display: block;
+  width: 4.5rem;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--accent-secondary), transparent);
+}
+
+.hero-parallax-edge {
+  position: absolute;
+  top: 5%;
+  right: 0;
+  bottom: 4%;
+  width: 1px;
+  opacity: .7;
+  background: linear-gradient(180deg, transparent, var(--accent), transparent);
+  box-shadow: 0 0 28px rgb(26 192 173 / .9), 0 0 64px rgb(14 107 96 / .6);
+}
+
+@media (max-width: 1023px) {
+  .hero-parallax-grid {
+    top: 2rem;
+    left: 1rem;
+    opacity: .55;
+  }
+
+  .hero-parallax-lines {
+    top: 3rem;
+    right: -2rem;
+    opacity: .55;
+  }
+
+  .hero-parallax-nodes {
+    right: 3%;
+    bottom: 2rem;
+    left: 3%;
+    opacity: .55;
+  }
+
+  .hero-parallax-marks {
+    display: none;
+  }
+
+  .hero-parallax-edge {
+    opacity: .55;
+  }
+}
+
+@media (max-width: 639px) {
+  .hero-parallax-grid,
+  .hero-parallax-lines,
+  .hero-parallax-nodes,
+  .hero-parallax-marks,
+  .hero-parallax-edge {
+    display: none;
+  }
+}
+
 @keyframes hero-drift {
   0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
   50% { transform: translate3d(28px, -18px, 0) scale(1.08); }
