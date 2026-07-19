@@ -4,6 +4,7 @@ import Image from "next/image";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { useEffect, useState } from "react";
 import { interactionClasses } from "@/lib/interaction-classes";
+import { WaitlistCta } from "@/components/WaitlistCta";
 
 const links = [
   ["Overview", "#overview"],
@@ -105,6 +106,7 @@ export function Navbar() {
         </div>
 
         <div className="flex items-center gap-3">
+          <WaitlistCta className="hidden rounded-md border border-accent/35 bg-background-elevated px-4 py-2 text-sm font-semibold text-accent hover:border-accent hover:bg-accent/10 sm:inline-flex" />
           <a href="#health-report" onClick={(event) => onNavClick(event, "#health-report")} className={`hidden ${interactionClasses.primaryButton} rounded-md bg-accent px-4 py-2 text-sm font-semibold text-background hover:bg-accent-secondary hover:text-text-primary sm:block`}>
             Examine a Repository
           </a>
