@@ -307,6 +307,22 @@ body {
   transition: background-color 180ms ease-out, box-shadow 180ms ease-out, color 180ms ease-out;
 }
 
+.nav-dropdown-trigger {
+  transition: color 180ms ease-out;
+}
+
+@media (hover: hover) {
+  button.nav-dropdown-trigger:not(:disabled):hover {
+    transform: none;
+    box-shadow: none;
+    color: var(--accent);
+  }
+}
+
+button.nav-dropdown-trigger:not(:disabled):active {
+  transform: none;
+}
+
 @media (hover: hover) {
   .faq-accordion:has(.faq-accordion-button:hover) {
     border-color: rgb(26 192 173 / .82);
