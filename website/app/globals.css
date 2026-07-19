@@ -237,7 +237,7 @@ body {
 .marquee-track {
   display: flex;
   width: max-content;
-  animation: marquee 28s linear infinite;
+  animation: marquee 25s linear infinite;
 }
 
 .marquee:hover .marquee-track {
@@ -293,6 +293,34 @@ body {
   .interaction-nav-link {
     transition: color 180ms ease-out, opacity 180ms ease-out;
   }
+}
+
+.faq-accordion {
+  overflow: hidden;
+  border-radius: .75rem;
+  transition: border-color 180ms ease-out;
+}
+
+.faq-accordion-button {
+  border-radius: 0;
+  box-shadow: none;
+  transition: background-color 180ms ease-out, box-shadow 180ms ease-out, color 180ms ease-out;
+}
+
+@media (hover: hover) {
+  .faq-accordion:has(.faq-accordion-button:hover) {
+    border-color: rgb(26 192 173 / .82);
+  }
+
+  button.faq-accordion-button:not(:disabled):hover {
+    transform: none;
+    background-color: rgb(26 192 173 / .06);
+    box-shadow: inset 0 1px 0 rgb(26 192 173 / .82), inset 0 -1px 0 rgb(26 192 173 / .82), inset 0 0 12px rgb(26 192 173 / .07);
+  }
+}
+
+button.faq-accordion-button:not(:disabled):active {
+  transform: none;
 }
 
 @media (prefers-reduced-motion: reduce) {
