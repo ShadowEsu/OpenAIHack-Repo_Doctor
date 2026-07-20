@@ -1,6 +1,7 @@
 "use client";
 
 import { DiagnosisReportCard } from "@/components/DiagnosisReportCard";
+import { XraySlider } from "@/components/XraySlider";
 import { interactionClasses } from "@/lib/interaction-classes";
 import { motion, useReducedMotion } from "framer-motion";
 
@@ -91,8 +92,7 @@ export function FeaturesBento() {
                 ))}
               </ul>
             </article>
-            {/* X-ray slider goes here — Phase 7.7 */}
-            <div aria-label="Reserved space for the X-ray slider" className="min-h-36 rounded-xl border border-dashed border-accent/25 bg-background/50" />
+            <XraySlider />
           </div>
         </motion.section>
 
