@@ -7,6 +7,14 @@ import { motion, useReducedMotion } from "framer-motion";
 const scannerChecks = ["Broken imports", "Dead files", "Hardcoded secrets", "Weak test coverage"];
 const repairSteps = ["Isolated working copy", "Readable diff", "Explicit approval", "Full test re-run"];
 
+function StepNumber({ number }: { number: string }) {
+  return (
+    <div className="relative z-10 flex h-14 w-14 shrink-0 items-center justify-center bg-background lg:h-20">
+      <span className="font-mono text-4xl tracking-[-.08em] text-accent sm:text-5xl">{number}</span>
+    </div>
+  );
+}
+
 export function FeaturesBento() {
   const reduceMotion = useReducedMotion();
   const reveal = (delay = 0) => ({
@@ -24,48 +32,93 @@ export function FeaturesBento() {
         <p className="mt-6 text-lg leading-8 text-text-muted">Repo Doctor keeps diagnosis, explanation, repair, and verification in one deliberate workflow.</p>
       </motion.div>
 
-      <div className="mt-12 grid gap-5 md:grid-cols-2 lg:grid-cols-12 lg:auto-rows-[minmax(15rem,auto)]">
-        <motion.article {...reveal(0.04)} className={`${interactionClasses.hoverCard} order-1 rounded-xl border border-accent/20 bg-background-elevated p-7 shadow-2xl shadow-black/15 md:col-span-2 lg:col-span-7 lg:row-span-2 lg:p-9`}>
-          <p className="font-mono text-xs uppercase tracking-[.16em] text-accent">01 / Diagnose</p>
-          <h2 className="mt-6 max-w-xl text-4xl font-bold tracking-[-.04em]">Ground every finding in real analysis.</h2>
-          <p className="mt-5 max-w-2xl leading-8 text-text-muted">Deterministic scanners inspect the repository before any AI runs, so the initial record comes from observable code structure rather than opinion alone.</p>
-          <div className="mt-10 grid gap-3 sm:grid-cols-2">
-            {scannerChecks.map((check) => <div key={check} className="rounded-lg border border-accent/15 bg-background px-4 py-3 font-mono text-sm text-text-primary"><span className="mr-2 text-accent">↗</span>{check}</div>)}
+      <div className="relative mt-16 space-y-16 sm:space-y-20 lg:space-y-28">
+        <div aria-hidden="true" className="absolute bottom-16 left-7 top-8 w-px bg-gradient-to-b from-transparent via-accent/45 to-transparent" />
+
+        <motion.section {...reveal(0.04)} className="feature-step relative grid gap-7 lg:grid-cols-[3.5rem_minmax(0,1fr)_minmax(0,1fr)] lg:gap-x-10">
+          <StepNumber number="01" />
+          <div className="feature-copy order-3 lg:col-start-2 lg:row-start-1 lg:self-center">
+            <p className="font-mono text-xs uppercase tracking-[.16em] text-accent">Diagnose</p>
+            <h2 className="mt-5 text-4xl font-bold tracking-[-.04em] sm:text-5xl">Ground every finding in real analysis.</h2>
+            <p className="mt-5 max-w-xl leading-8 text-text-muted">Deterministic scanners inspect the repository before any AI runs, so the initial record comes from observable code structure rather than opinion alone.</p>
           </div>
-        </motion.article>
-
-        <motion.article {...reveal(0.1)} className={`${interactionClasses.hoverCard} order-2 rounded-xl border border-accent/20 bg-background-elevated p-7 shadow-2xl shadow-black/15 lg:col-span-5 lg:p-8`}>
-          <p className="font-mono text-xs uppercase tracking-[.16em] text-accent">03 / Repair</p>
-          <h2 className="mt-5 text-3xl font-bold tracking-[-.04em]">Treat one issue safely.</h2>
-          <p className="mt-4 leading-7 text-text-muted">Each proposed treatment is isolated, reviewable, and gated by your approval before it can touch a repository.</p>
-          <ul className="mt-7 grid gap-3 sm:grid-cols-2 lg:grid-cols-1">
-            {repairSteps.map((step) => <li key={step} className="border-t border-accent/15 pt-3 font-mono text-sm"><span className="mr-2 text-accent">↗</span>{step}</li>)}
-          </ul>
-        </motion.article>
-
-        <motion.article {...reveal(0.16)} className={`${interactionClasses.hoverCard} order-3 rounded-xl border border-accent/20 bg-background-elevated p-7 shadow-2xl shadow-black/15 lg:col-span-5 lg:p-8`}>
-          <p className="font-mono text-xs uppercase tracking-[.16em] text-accent">02 / Explain</p>
-          <h2 className="mt-5 text-3xl font-bold tracking-[-.04em]">Make the risk legible.</h2>
-          <p className="mt-4 leading-7 text-text-muted">Each diagnosis pairs severity, confidence, affected files, and a plain-language root cause.</p>
-          <DiagnosisReportCard className="mt-7 p-5 sm:p-6" diagnosisId="RD-027" title="Broken import in billing/summary.ts" severity="Warning" confidence="Medium confidence" affectedFiles={["billing/summary.ts :8", "billing/index.ts :3"]} evidence="A local module path no longer resolves from the billing summary entry point." whyItMatters="The screen can fail at runtime until the import path is corrected." />
-        </motion.article>
-
-        <motion.article {...reveal(0.22)} className={`${interactionClasses.hoverCard} order-4 rounded-xl border border-accent/20 bg-background-elevated p-7 shadow-2xl shadow-black/15 md:col-span-2 lg:col-span-7 lg:p-9`}>
-          <p className="font-mono text-xs uppercase tracking-[.16em] text-accent">04 / Verify</p>
-          <div className="mt-6 grid gap-6 sm:grid-cols-[1fr_auto] sm:items-end">
-            <div>
-              <h2 className="text-3xl font-bold tracking-[-.04em]">Confirm the repair changed the record.</h2>
-              <p className="mt-4 max-w-2xl leading-7 text-text-muted">Before-and-after health scores make the result visible. Tests are re-run after every treatment, and no change is applied without approval.</p>
+          <article className={`feature-visual ${interactionClasses.hoverCard} order-2 rounded-xl border border-accent/20 bg-background-elevated p-6 shadow-2xl shadow-black/15 sm:p-8 lg:col-start-3 lg:row-start-1`}>
+            <p className="font-mono text-xs text-text-muted">DETERMINISTIC CHECKS</p>
+            <div className="mt-6 grid gap-3 sm:grid-cols-2">
+              {scannerChecks.map((check) => (
+                <div key={check} className="rounded-lg border border-accent/15 bg-background px-4 py-3 font-mono text-sm text-text-primary">
+                  <span className="mr-2 text-accent">↗</span>{check}
+                </div>
+              ))}
             </div>
-            <div className="flex gap-5 font-mono">
-              <div><p className="text-xs text-text-muted">BEFORE</p><p className="mt-1 text-5xl font-bold text-status-warning">58</p></div>
-              <div className="border-l border-accent/20 pl-5"><p className="text-xs text-text-muted">AFTER</p><p className="mt-1 text-5xl font-bold text-status-success">82</p></div>
-            </div>
+          </article>
+        </motion.section>
+
+        <motion.section {...reveal(0.08)} className="feature-step relative grid gap-7 lg:grid-cols-[3.5rem_minmax(0,1fr)_minmax(0,1fr)] lg:gap-x-10">
+          <StepNumber number="02" />
+          <div className="feature-copy order-3 lg:col-start-3 lg:row-start-1 lg:self-center">
+            <p className="font-mono text-xs uppercase tracking-[.16em] text-accent">Explain</p>
+            <h2 className="mt-5 text-4xl font-bold tracking-[-.04em] sm:text-5xl">Make the risk legible.</h2>
+            <p className="mt-5 max-w-xl leading-8 text-text-muted">Each diagnosis pairs severity, confidence, affected files, and a plain-language root cause.</p>
           </div>
-        </motion.article>
+          <div className="feature-visual order-2 lg:col-start-2 lg:row-start-1">
+            <DiagnosisReportCard
+              className={interactionClasses.hoverCard}
+              diagnosisId="RD-027"
+              title="Broken import in billing/summary.ts"
+              severity="Warning"
+              confidence="Medium confidence"
+              affectedFiles={["billing/summary.ts :8", "billing/index.ts :3"]}
+              evidence="A local module path no longer resolves from the billing summary entry point."
+              whyItMatters="The screen can fail at runtime until the import path is corrected."
+            />
+          </div>
+        </motion.section>
 
-        {/* X-ray slider goes here — Phase 7.7 */}
-        <motion.div {...reveal(0.28)} aria-label="Reserved space for the X-ray slider" className="order-5 min-h-48 rounded-xl border border-dashed border-accent/25 bg-background/50 lg:col-span-5" />
+        <motion.section {...reveal(0.12)} className="feature-step relative grid gap-7 lg:grid-cols-[3.5rem_minmax(0,1fr)_minmax(0,1fr)] lg:gap-x-10">
+          <StepNumber number="03" />
+          <div className="feature-copy order-3 lg:col-start-2 lg:row-start-1 lg:self-center">
+            <p className="font-mono text-xs uppercase tracking-[.16em] text-accent">Repair</p>
+            <h2 className="mt-5 text-4xl font-bold tracking-[-.04em] sm:text-5xl">Treat one issue safely.</h2>
+            <p className="mt-5 max-w-xl leading-8 text-text-muted">Each proposed treatment is isolated, reviewable, and gated by your approval before it can touch a repository.</p>
+          </div>
+          <div className="feature-visual order-2 space-y-4 lg:col-start-3 lg:row-start-1">
+            <article className={`${interactionClasses.hoverCard} rounded-xl border border-accent/20 bg-background-elevated p-6 shadow-2xl shadow-black/15 sm:p-8`}>
+              <p className="font-mono text-xs text-text-muted">TREATMENT PROTOCOL</p>
+              <ul className="mt-6 grid gap-3 sm:grid-cols-2">
+                {repairSteps.map((step) => (
+                  <li key={step} className="border-t border-accent/15 pt-3 font-mono text-sm"><span className="mr-2 text-accent">↗</span>{step}</li>
+                ))}
+              </ul>
+            </article>
+            {/* X-ray slider goes here — Phase 7.7 */}
+            <div aria-label="Reserved space for the X-ray slider" className="min-h-36 rounded-xl border border-dashed border-accent/25 bg-background/50" />
+          </div>
+        </motion.section>
+
+        <motion.section {...reveal(0.16)} className="feature-step relative grid gap-7 lg:grid-cols-[3.5rem_minmax(0,1fr)_minmax(0,1fr)] lg:gap-x-10">
+          <StepNumber number="04" />
+          <div className="feature-copy order-3 lg:col-start-3 lg:row-start-1 lg:self-center">
+            <p className="font-mono text-xs uppercase tracking-[.16em] text-accent">Verify</p>
+            <h2 className="mt-5 text-4xl font-bold tracking-[-.04em] sm:text-5xl">Confirm the repair changed the record.</h2>
+            <p className="mt-5 max-w-xl leading-8 text-text-muted">Before-and-after health scores make the result visible. Tests are re-run after every treatment, and no change is applied without approval.</p>
+          </div>
+          <article className={`feature-visual ${interactionClasses.hoverCard} order-2 rounded-xl border border-accent/20 bg-background-elevated p-6 shadow-2xl shadow-black/15 sm:p-8 lg:col-start-2 lg:row-start-1`}>
+            <p className="font-mono text-xs text-text-muted">VERIFICATION RECORD</p>
+            <div className="mt-7 grid grid-cols-2 gap-5 font-mono">
+              <div>
+                <p className="text-xs text-text-muted">BEFORE</p>
+                <p className="mt-2 text-6xl font-bold tracking-[-.08em] text-status-warning">58</p>
+                <p className="mt-2 text-sm text-text-muted">Health Score</p>
+              </div>
+              <div className="border-l border-accent/20 pl-5">
+                <p className="text-xs text-text-muted">AFTER</p>
+                <p className="mt-2 text-6xl font-bold tracking-[-.08em] text-status-success">82</p>
+                <p className="mt-2 text-sm text-text-muted">Health Score</p>
+              </div>
+            </div>
+          </article>
+        </motion.section>
       </div>
     </section>
   );
