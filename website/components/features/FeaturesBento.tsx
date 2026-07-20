@@ -4,6 +4,12 @@ import { DiagnosisReportCard } from "@/components/DiagnosisReportCard";
 import { XraySlider } from "@/components/XraySlider";
 import { interactionClasses } from "@/lib/interaction-classes";
 import { motion, useReducedMotion } from "framer-motion";
+import dynamic from "next/dynamic";
+
+const RepoGalaxy = dynamic(
+  () => import("@/components/RepoGalaxy").then((module) => module.RepoGalaxy),
+  { loading: () => null, ssr: false },
+);
 
 const scannerChecks = ["Broken imports", "Dead files", "Hardcoded secrets", "Weak test coverage"];
 const repairSteps = ["Isolated working copy", "Readable diff", "Explicit approval", "Full test re-run"];
@@ -27,11 +33,16 @@ export function FeaturesBento() {
 
   return (
     <section className="mx-auto max-w-7xl px-5 py-24 lg:px-8">
-      <motion.div {...reveal()} className="max-w-3xl">
-        <p className="font-mono text-xs uppercase tracking-[.16em] text-accent">Feature record</p>
-        <h1 className="mt-4 text-5xl font-bold tracking-[-.05em] sm:text-6xl">A safer path from symptom to repair.</h1>
-        <p className="mt-6 text-lg leading-8 text-text-muted">Repo Doctor keeps diagnosis, explanation, repair, and verification in one deliberate workflow.</p>
-      </motion.div>
+      <div className="relative isolate min-h-64 overflow-hidden lg:min-h-72">
+        <div aria-hidden="true" className="pointer-events-none absolute right-5 top-1/2 z-0 hidden h-72 w-72 -translate-y-1/2 lg:block">
+          <RepoGalaxy />
+        </div>
+        <motion.div {...reveal()} className="relative z-10 max-w-3xl">
+          <p className="font-mono text-xs uppercase tracking-[.16em] text-accent">Feature record</p>
+          <h1 className="mt-4 text-5xl font-bold tracking-[-.05em] sm:text-6xl">A safer path from symptom to repair.</h1>
+          <p className="mt-6 text-lg leading-8 text-text-muted">Repo Doctor keeps diagnosis, explanation, repair, and verification in one deliberate workflow.</p>
+        </motion.div>
+      </div>
 
       <div className="relative mt-16 space-y-16 sm:space-y-20 lg:space-y-28">
         <div aria-hidden="true" className="absolute bottom-16 left-7 top-8 w-px bg-gradient-to-b from-transparent via-accent/45 to-transparent" />
