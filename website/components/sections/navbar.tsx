@@ -14,6 +14,7 @@ const links = [
   ["How it Works", "#how-it-works"],
   ["Compare", "#comparison"],
 ] as const;
+const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://repo-doctor-two.vercel.app";
 
 export function Navbar() {
   const reduceMotion = useReducedMotion();
@@ -168,9 +169,7 @@ export function Navbar() {
 
         <div className="flex items-center gap-3">
           <WaitlistCta className="hidden rounded-md border border-accent/35 bg-background-elevated px-4 py-2 text-sm font-semibold text-accent hover:border-accent hover:bg-accent/10 sm:inline-flex" />
-          <Link href={pageHref("#health-report")} onClick={(event) => onNavClick(event, "#health-report")} className={`hidden ${interactionClasses.primaryButton} rounded-md bg-accent px-4 py-2 text-sm font-semibold text-background hover:bg-accent-secondary hover:text-text-primary sm:block`}>
-            Examine a Repository
-          </Link>
+          <a href={appUrl} className={`hidden ${interactionClasses.primaryButton} rounded-md bg-accent px-4 py-2 text-sm font-semibold text-background hover:bg-accent-secondary hover:text-text-primary sm:block`}>Launch app</a>
           <button type="button" aria-expanded={mobileOpen} aria-controls="mobile-navigation" onClick={() => setMobileOpen((value) => !value)} className={`${interactionClasses.secondaryButton} rounded border border-accent/25 px-3 py-1.5 font-mono text-xs text-accent xl:hidden`}>
             Menu
           </button>
@@ -202,6 +201,7 @@ export function Navbar() {
                   <Link href={pageHref(href)} onClick={(event) => onNavClick(event, href, true)} className={`${linkClass} ${active === href ? "text-accent" : ""}`}>{label}</Link>
                 </motion.div>
               ))}
+              <a href={appUrl} className="mt-3 rounded-md bg-accent px-4 py-3 text-center text-sm font-semibold text-background">Launch app</a>
             </div>
           </motion.div>
         )}

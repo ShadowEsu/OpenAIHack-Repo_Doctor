@@ -15,6 +15,7 @@ import { useEffect, useRef, useState } from "react";
 const tags = ["Diagnosis", "Evidence", "Confidence", "Safe Repair", "Verification"];
 
 export function Hero() {
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://repo-doctor-two.vercel.app";
   const reduceMotion = useReducedMotion();
   const sectionRef = useRef<HTMLElement>(null);
   const [canParallax, setCanParallax] = useState(false);
@@ -100,8 +101,8 @@ export function Hero() {
           Repo Doctor examines messy repositories, explains what is wrong, and safely repairs maintainability issues one treatment at a time.
         </p>
         <div className="mt-9 flex flex-col gap-3 sm:flex-row">
-          <a href="#health-report" className={`${interactionClasses.primaryButton} cta-primary rounded-md bg-accent px-5 py-3 text-center font-semibold text-background hover:bg-accent-secondary hover:text-text-primary`}>
-            Examine a Repository
+          <a href={appUrl} className={`${interactionClasses.primaryButton} cta-primary rounded-md bg-accent px-5 py-3 text-center font-semibold text-background hover:bg-accent-secondary hover:text-text-primary`}>
+            Launch Repo Doctor
           </a>
           <a href="#health-report" className={`${interactionClasses.secondaryButton} rounded-md border border-accent/30 px-5 py-3 text-center font-semibold hover:border-accent hover:text-accent`}>
             View Sample Health Record

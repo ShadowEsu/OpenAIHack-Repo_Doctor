@@ -10,7 +10,7 @@ function CodeSnippet({ version }: { version: "before" | "after" }) {
   return (
     <pre className="m-0 overflow-hidden font-mono text-xs leading-6 text-text-primary sm:text-sm">
       <code>
-        <span className="text-text-muted">// config/api.ts</span>{"\n"}
+        <span className="text-text-muted">{"// config/api.ts"}</span>{"\n"}
         <span className="text-accent">export const</span> <span className="text-text-primary">apiConfig</span> <span className="text-text-muted">=</span> <span className="text-text-primary">&#123;</span>{"\n"}
         {isBefore ? (
           <>
