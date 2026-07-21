@@ -66,7 +66,7 @@ export function AppShell({ children, repositoryName }: AppShellProps) {
   }, []);
 
   return (
-    <div className="grain flex h-screen overflow-hidden bg-background">
+    <div className="grain flex min-h-screen overflow-hidden bg-background">
       {/* Ambient glow */}
       <div
         className="pointer-events-none fixed inset-0 z-0 transition-opacity duration-500"
@@ -77,7 +77,7 @@ export function AppShell({ children, repositoryName }: AppShellProps) {
       />
 
       {/* Desktop sidebar */}
-      <aside className="relative z-10 hidden lg:flex">
+      <aside className="relative z-10 hidden border-r border-accent/15 bg-background-elevated lg:flex">
         <SidebarNav repositoryId={repositoryId} />
       </aside>
 
@@ -170,8 +170,8 @@ export function AppShell({ children, repositoryName }: AppShellProps) {
         </header>
 
         {/* Scrollable content with page transition */}
-        <main id="main-content" className="flex-1 overflow-y-auto p-6 lg:p-8">
-          <div className="animate-fade-in-up">
+        <main id="main-content" className="flex-1 overflow-y-auto px-5 py-6 sm:px-8 lg:px-12 lg:py-10">
+          <div className="mx-auto max-w-7xl animate-fade-in-up">
             {children}
           </div>
         </main>
@@ -191,10 +191,16 @@ function SidebarNav({ repositoryId }: { repositoryId?: string }) {
 
   return (
     <nav
-      className="glass-strong flex h-screen w-60 flex-col"
+      className="flex h-screen w-72 flex-col bg-background-elevated"
       aria-label="Main navigation"
     >
-      <div className="flex flex-1 flex-col gap-1 p-3">
+      <div className="border-b border-accent/15 px-5 py-5">
+        <Link href="/app/repos" className="flex items-center gap-3">
+          <div className="grid size-9 place-items-center rounded-lg bg-accent text-sm font-black text-background shadow-lg shadow-accent/15">R</div>
+          <div><span className="block text-sm font-bold tracking-tight text-text-primary">Repo Doctor</span><span className="font-mono text-[10px] uppercase tracking-[.14em] text-accent">Evidence workspace</span></div>
+        </Link>
+      </div>
+      <div className="flex flex-1 flex-col gap-1 p-4">
         {navItems.map((item) => {
           const href = repositoryId
             ? `/app/repos/${repositoryId}${item.segment ? "/" + item.segment : ""}`
@@ -207,7 +213,7 @@ function SidebarNav({ repositoryId }: { repositoryId?: string }) {
               key={item.segment}
               href={href}
               className={cn(
-                "group flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-200",
+                "group flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-200",
                 isActive
                   ? "bg-accent-light text-accent shadow-sm shadow-accent/10"
                   : "text-text-secondary hover:bg-surface-elevated hover:text-text-primary"
@@ -229,7 +235,7 @@ function SidebarNav({ repositoryId }: { repositoryId?: string }) {
         })}
       </div>
 
-      <div className="border-t border-border p-3">
+      <div className="border-t border-accent/15 p-4">
         <div className="flex items-center gap-2.5">
           <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-accent to-accent-hover shadow-sm shadow-accent/20">
             <Activity className="h-4 w-4 text-white" aria-hidden="true" />

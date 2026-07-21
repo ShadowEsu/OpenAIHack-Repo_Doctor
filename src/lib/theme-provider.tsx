@@ -9,9 +9,9 @@ const ThemeContext = createContext<{
   setTheme: (theme: Theme) => void;
   resolvedTheme: "light" | "dark";
 }>({
-  theme: "system",
+  theme: "dark",
   setTheme: () => {},
-  resolvedTheme: "light",
+  resolvedTheme: "dark",
 });
 
 export function useTheme() {
@@ -19,8 +19,8 @@ export function useTheme() {
 }
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [theme, setTheme] = useState<Theme>(() => typeof window === "undefined" ? "system" : (localStorage.getItem("theme") as Theme | null) || "system");
-  const [resolvedTheme, setResolvedTheme] = useState<"light" | "dark">("light");
+  const [theme, setTheme] = useState<Theme>(() => typeof window === "undefined" ? "dark" : (localStorage.getItem("theme") as Theme | null) || "dark");
+  const [resolvedTheme, setResolvedTheme] = useState<"light" | "dark">("dark");
 
   useEffect(() => {
     const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
