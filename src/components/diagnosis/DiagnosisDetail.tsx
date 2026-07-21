@@ -27,22 +27,21 @@ interface DiagnosisDetailProps {
   onMarkResolved?: () => void;
 }
 
-function severityIcon(severity: Diagnosis["severity"]) {
+function SeverityGlyph({ severity, className }: { severity: Diagnosis["severity"]; className: string }) {
   switch (severity) {
     case "critical":
-      return AlertTriangle;
+      return <AlertTriangle className={className} aria-hidden="true" />;
     case "high":
-      return ArrowUp;
+      return <ArrowUp className={className} aria-hidden="true" />;
     case "medium":
-      return Minus;
+      return <Minus className={className} aria-hidden="true" />;
     case "low":
-      return ArrowDown;
+      return <ArrowDown className={className} aria-hidden="true" />;
   }
 }
 
-function riskIcon(risk: string) {
-  if (risk === "low") return ShieldCheck;
-  return ShieldAlert;
+function RiskGlyph({ risk, className }: { risk: string; className: string }) {
+  return risk === "low" ? <ShieldCheck className={className} aria-hidden="true" /> : <ShieldAlert className={className} aria-hidden="true" />;
 }
 
 function effortLabel(effort: string): string {
@@ -79,9 +78,6 @@ export function DiagnosisDetail({
     status,
   } = diagnosis;
 
-  const SeverityIcon = severityIcon(severity);
-  const RiskIcon = riskIcon(repairRisk);
-
   return (
     <motion.div
       initial={{ opacity: 0, y: 12 }}
@@ -92,16 +88,13 @@ export function DiagnosisDetail({
       {/* Header */}
       <div className="flex flex-wrap items-start gap-4">
         <div className="rounded-lg bg-surface-elevated p-2.5">
-          <SeverityIcon
-            className={cn(
+          <SeverityGlyph severity={severity} className={cn(
               "h-6 w-6",
               severity === "critical" && "text-critical",
               severity === "high" && "text-warning",
               severity === "medium" && "text-info",
               severity === "low" && "text-text-muted"
-            )}
-            aria-hidden="true"
-          />
+            )} />
         </div>
 
         <div className="min-w-0 flex-1">
@@ -170,13 +163,10 @@ export function DiagnosisDetail({
             <span>{effortLabel(repairEffort)}</span>
           </div>
           <div className="flex items-center gap-1.5">
-            <RiskIcon
-              className={cn(
+            <RiskGlyph risk={repairRisk} className={cn(
                 "h-4 w-4",
                 repairRisk === "low" ? "text-success" : "text-warning"
-              )}
-              aria-hidden="true"
-            />
+              )} />
             <span>
               {repairRisk.charAt(0).toUpperCase() + repairRisk.slice(1)} risk
             </span>

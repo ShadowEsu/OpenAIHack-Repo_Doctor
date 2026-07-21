@@ -46,11 +46,6 @@ export function AppShell({ children, repositoryName }: AppShellProps) {
     setMobileNavOpen(false);
   }, []);
 
-  // Close drawer on route change
-  useEffect(() => {
-    closeMobileNav();
-  }, [pathname, closeMobileNav]);
-
   // Close drawer on escape
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {

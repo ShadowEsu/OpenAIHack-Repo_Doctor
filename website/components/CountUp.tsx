@@ -13,10 +13,10 @@ export function CountUp({ value, suffix = "" }: { value: number; suffix?: string
     if (!inView) {
       controlsRef.current?.stop();
       controlsRef.current = null;
-      setCount(0);
+      window.requestAnimationFrame(() => setCount(0));
       return;
     }
-    if (reduceMotion) { setCount(value); return; }
+    if (reduceMotion) { window.requestAnimationFrame(() => setCount(value)); return; }
     const start = window.setTimeout(() => {
       controlsRef.current = animate(0, value, { duration: 1.3, ease: [0.16, 1, 0.3, 1], onUpdate: (latest) => setCount(Math.round(latest)) });
     }, 90);

@@ -19,13 +19,8 @@ export function useTheme() {
 }
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [theme, setTheme] = useState<Theme>("system");
+  const [theme, setTheme] = useState<Theme>(() => typeof window === "undefined" ? "system" : (localStorage.getItem("theme") as Theme | null) || "system");
   const [resolvedTheme, setResolvedTheme] = useState<"light" | "dark">("light");
-
-  useEffect(() => {
-    const stored = localStorage.getItem("theme") as Theme | null;
-    if (stored) setTheme(stored);
-  }, []);
 
   useEffect(() => {
     const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");

@@ -10,7 +10,7 @@ interface DiagnosisFiltersProps {
     status?: string;
     repairable?: boolean;
   };
-  onChange: (filters: any) => void;
+  onChange: (filters: DiagnosisFiltersProps["filters"]) => void;
 }
 
 const severities = ["critical", "high", "medium", "low"];
