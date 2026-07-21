@@ -2,304 +2,118 @@
 
 # Repo Doctor
 
-### An AI health clinic for messy codebases
+### A calm, evidence-first workspace for repository health.
 
-[![Next.js](https://img.shields.io/badge/Next.js-16-black?logo=next.js)](https://nextjs.org)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5-blue?logo=typescript)](https://typescriptlang.org)
-[![Tailwind CSS](https://img.shields.io/badge/Tailwind-4-38bdf8?logo=tailwindcss)](https://tailwindcss.com)
-[![React](https://img.shields.io/badge/React-19-61dafb?logo=react)](https://react.dev)
+Connect a public GitHub repository. See the signal. Review the next safe repair.
 
-<br />
-
-Repo Doctor examines your repository, diagnoses issues with evidence, and provides
-safe treatments that improve code quality without breaking anything.
+[**Open Repo Doctor →**](https://repo-doctor-two.vercel.app) &nbsp;·&nbsp; [Launch website](https://website-six-khaki-20.vercel.app) &nbsp;·&nbsp; [Report an issue](https://github.com/ShadowEsu/OpenAIHack-Repo_Doctor/issues)
 
 <br />
 
-**[Live Demo](https://repo-doctor.vercel.app)** · **[Design Spec](DESIGN.md)** · **[Report Bug](https://github.com/ShadowEsu/OpenAIHack-Repo_Doctor/issues)**
-
-<br />
-
-![Repo Doctor Preview](https://via.placeholder.com/1200x600/09090B/2DD4BF?text=Repo+Doctor+Dashboard)
+![Next.js](https://img.shields.io/badge/Next.js_16-031614?style=flat-square&logo=next.js&logoColor=EAFBF8)
+![React](https://img.shields.io/badge/React_19-031614?style=flat-square&logo=react&logoColor=1AC0AD)
+![TypeScript](https://img.shields.io/badge/TypeScript-031614?style=flat-square&logo=typescript&logoColor=1AC0AD)
+![Vercel](https://img.shields.io/badge/Deployed_on-Vercel-031614?style=flat-square&logo=vercel&logoColor=EAFBF8)
 
 </div>
 
----
+<br />
 
-## Features
+> **Public repositories in. Clear engineering signal out.**
+>
+> Repo Doctor maps a public repository, reviews safe metadata and manifest excerpts with a server-side model, and turns supported findings into review-only repair proposals. It never writes to GitHub.
 
-<table>
-<tr>
-<td width="50%" valign="top">
+## The flow
 
-### Examination
-- Analyzes repository structure, dependencies, and patterns
-- Detects technologies and maps file relationships
-- Identifies security vulnerabilities and code smells
-- Reviews test coverage and documentation
+```text
+Connect a repository  →  Map its public structure  →  Review evidence  →  Plan a safe repair
+```
 
-</td>
-<td width="50%" valign="top">
+| 01 · Connect | 02 · Examine | 03 · Repair |
+| --- | --- | --- |
+| Paste a public `github.com/owner/repo` URL. | Repo Doctor reads the public tree and a bounded set of safe project files. | Generate a small unified diff to review and apply yourself. |
 
-### Diagnosis
-- Evidence-based findings with confidence scores
-- Severity ratings (Critical → Low) with affected files
-- Code snippets and line references for every issue
-- Repairability assessment for each finding
+## What it does
 
-</td>
-</tr>
-<tr>
-<td width="50%" valign="top">
+### One workspace. One glance.
 
-### Treatment
-- Safe, reversible code repairs
-- Full diff review before applying changes
-- Verification: linting, type checking, tests, build
-- One-click rollback if anything fails
+- **Live public-repository scans** — validates GitHub repositories, indexes the public file tree, and inspects safe manifest excerpts.
+- **Evidence-first findings** — every finding includes the supporting path or inventory evidence; unsupported metadata is filtered out.
+- **Model-assisted repair planning** — creates a review-only unified diff from the cited public file when there is enough context.
+- **No invisible writes** — Repo Doctor does not commit, push, or modify GitHub repositories.
 
-</td>
-<td width="50%" valign="top">
+### Built to stay out of the way.
 
-### Health Dashboard
-- Health score across 6 dimensions
-- Security, Reliability, Maintainability, Testing, Documentation, Dependencies
-- Score trends over time
-- Treatment history with before/after comparison
+| Signal | What happens |
+| --- | --- |
+| **Public only** | Private repositories are not scanned. |
+| **Bounded context** | File inventories are capped and only selected, text-based project files are read. |
+| **Server-side model key** | The AI credential stays in Vercel’s encrypted server environment—never in the browser or this repository. |
+| **Human in control** | A repair is a proposal, not an automatic change. Review it, test it, and merge it on your terms. |
 
-</td>
-</tr>
-</table>
-
----
-
-## Tech Stack
-
-| Layer | Technology |
-|-------|------------|
-| Framework | Next.js 16 (App Router) |
-| Language | TypeScript 5 |
-| UI | React 19 |
-| Styling | Tailwind CSS 4 |
-| Animation | Framer Motion |
-| Icons | Lucide React |
-| State | TanStack Query |
-| Validation | Zod |
-| Font | Geist Sans / Geist Mono |
-
----
-
-## Getting Started
-
-### Prerequisites
-
-- Node.js 18+ (recommended: 20)
-- npm, yarn, or pnpm
-
-### Installation
+## Quick start
 
 ```bash
-# Clone the repository
 git clone https://github.com/ShadowEsu/OpenAIHack-Repo_Doctor.git
 cd OpenAIHack-Repo_Doctor
-
-# Install dependencies
 npm install
-
-# Start development server
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) in your browser.
+Open [localhost:3000](http://localhost:3000), select **Connect a repository**, and paste a public GitHub URL.
 
-### Available Commands
+### Environment
 
-| Command | Description |
-|---------|-------------|
-| `npm run dev` | Start development server |
-| `npm run build` | Build for production |
-| `npm run start` | Start production server |
+The app runs without a browser-exposed secret. To enable live model-backed scans and repair proposals locally, add a server-only key:
+
+```bash
+# .env.local — do not commit this file
+GROQ_API_KEY=your_key_here
+# Optional; defaults to llama-3.3-70b-versatile
+GROQ_MODEL=llama-3.3-70b-versatile
+```
+
+## Commands
+
+| Command | Purpose |
+| --- | --- |
+| `npm run dev` | Start the local Next.js app |
+| `npm run build` | Create a production build |
+| `npm run start` | Serve the production build |
 | `npm run lint` | Run ESLint |
 
----
+## Architecture
 
-## Project Structure
-
-```
+```text
 src/
-├── app/                          # Next.js App Router pages
-│   ├── page.tsx                  # Landing page
-│   ├── connect/                  # Repository connection
-│   ├── exam/[id]/progress/       # Examination progress
-│   ├── sample/                   # Sample health report
-│   └── app/repos/                # Application shell
-│       ├── [repoId]/             # Repository dashboard
-│       │   ├── diagnoses/        # Diagnosis list + detail
-│       │   ├── treatments/       # Treatment list + detail
-│       │   ├── history/          # Treatment history
-│       │   └── settings/         # Repository settings
-│       └── page.tsx              # Repository list
-│
-├── components/                   # React components
-│   ├── layout/                   # AppShell, Sidebar, TopBar, MobileNav
-│   ├── health/                   # HealthScore, Dimensions, Trend
-│   ├── diagnosis/                # Cards, Filters, Detail, Evidence
-│   ├── treatment/                # Proposal, Diff, Verification
-│   ├── repository/               # Cards, Identity, Badges
-│   ├── code/                     # CodeSnippet, FilePath, Diff
-│   └── feedback/                 # Empty, Error, Loading, Toast
-│
-├── lib/                          # Utilities and types
-│   ├── types.ts                  # TypeScript interfaces
-│   ├── api.ts                    # API client + mock data
-│   ├── utils.ts                  # Helper functions
-│   ├── theme-provider.tsx        # Dark mode context
-│   └── providers.tsx             # TanStack Query provider
-│
-└── globals.css                   # Design tokens + animations
+├── app/
+│   ├── connect/          # Repository URL entry
+│   ├── scan/             # Live scan and repair-review experience
+│   └── api/
+│       ├── repositories/ # Public GitHub validation
+│       ├── scan/         # Bounded GitHub + model-backed review
+│       └── repair/       # Review-only unified-diff proposal
+└── lib/server/
+    ├── github.ts         # Public GitHub snapshot and safe file reads
+    └── groq.ts           # Server-side structured model requests
 ```
 
----
+## Stack
 
-## Design System
+**Next.js 16** · **React 19** · **TypeScript** · **Tailwind CSS 4** · **Framer Motion** · **Vercel**
 
-### Colors
+## Deployment
 
-| Token | Light | Dark | Usage |
-|-------|-------|------|-------|
-| `--accent` | `#0D9488` | `#2DD4BF` | Primary actions |
-| `--success` | `#16A34A` | `#4ADE80` | Passed, healthy |
-| `--warning` | `#D97706` | `#FBBF24` | Warnings |
-| `--critical` | `#DC2626` | `#F87171` | Errors, severe |
-| `--info` | `#2563EB` | `#60A5FA` | Informational |
+The production app is deployed on Vercel: [repo-doctor-two.vercel.app](https://repo-doctor-two.vercel.app).
 
-### Severity System
-
-Every diagnosis uses **icon + text + color** (never color-only):
-
-| Severity | Icon | Color |
-|----------|------|-------|
-| Critical | Alert Triangle | Red |
-| High | Arrow Up | Amber |
-| Medium | Minus | Blue |
-| Low | Arrow Down | Gray |
-
-### Animations
-
-- **Fade in up** — Page load, list items
-- **Scale in** — Score reveal, badges
-- **Gradient shift** — Hero text
-- **Pulse glow** — Active states
-- **Spring** — Drawer open/close
-- **Stagger** — Sequential reveals
-
----
-
-## Routes
-
-| Route | Description |
-|-------|-------------|
-| `/` | Landing page |
-| `/connect` | Connect a repository |
-| `/sample` | Sample health report |
-| `/exam/[id]/progress` | Examination progress |
-| `/app/repos` | Repository list |
-| `/app/repos/[repoId]` | Repository overview |
-| `/app/repos/[repoId]/diagnoses` | Diagnosis list |
-| `/app/repos/[repoId]/diagnoses/[id]` | Diagnosis detail |
-| `/app/repos/[repoId]/treatments` | Treatment list |
-| `/app/repos/[repoId]/treatments/[id]` | Treatment detail |
-| `/app/repos/[repoId]/history` | Treatment history |
-| `/app/repos/[repoId]/settings` | Repository settings |
-
----
-
-## API Contract
-
-The frontend expects these endpoints from the backend:
-
-```typescript
-POST   /api/repos/connect              // Connect repository
-GET    /api/repos                       // List repositories
-GET    /api/repos/:id                   // Get repository
-DELETE /api/repos/:id                   // Delete repository
-
-POST   /api/repos/:id/examine           // Start examination
-GET    /api/repos/:id/examination        // Get examination status
-
-GET    /api/repos/:id/health             // Get latest health record
-GET    /api/repos/:id/health/history     // Get health history
-
-GET    /api/repos/:id/diagnoses          // List diagnoses
-GET    /api/repos/:id/diagnoses/:id      // Get diagnosis
-PATCH  /api/repos/:id/diagnoses/:id      // Update diagnosis status
-
-POST   /api/repos/:id/treatments         // Create treatment proposal
-GET    /api/repos/:id/treatments         // List treatments
-GET    /api/repos/:id/treatments/:id     // Get treatment
-POST   /api/repos/:id/treatments/:id/approve  // Approve treatment
-POST   /api/repos/:id/treatments/:id/rollback // Rollback treatment
-```
-
-TypeScript types are defined in `src/lib/types.ts`.
-
----
-
-## Responsive Breakpoints
-
-| Breakpoint | Width | Layout |
-|------------|-------|--------|
-| Desktop | ≥1280px | Sidebar + content |
-| Laptop | 1024-1279px | Collapsible sidebar |
-| Tablet | 768-1023px | No sidebar, bottom nav |
-| Mobile | <768px | Bottom nav, stacked |
-
----
-
-## Accessibility
-
-- Skip-to-content link
-- Keyboard navigation throughout
-- ARIA labels on all interactive elements
-- Severity badges use icon + text + color
-- Focus-visible rings on all focusable elements
-- Reduced motion support
-- Screen reader announcements for progress
-
----
-
-## Environment Variables
-
-No environment variables required for development. The app uses mock data.
-
-For production, configure:
-
-```env
-NEXT_PUBLIC_API_URL=https://your-api.com
-```
-
----
-
-## Contributing
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
----
-
-## License
-
-MIT © 2026 Repo Doctor Team
+For production, configure `GROQ_API_KEY` as an encrypted Vercel environment variable. Do not use a `NEXT_PUBLIC_` prefix and do not commit credentials.
 
 ---
 
 <div align="center">
 
-**Built for the OpenAI Hackathon · July 13-21, 2026**
+**Less guesswork. More signal.**
 
-[![Devpost](https://img.shields.io/badge/Devpost-Repo%20Doctor-blue?style=for-the-badge)](https://devpost.com/software/repo-doctor)
+Built for engineers who want to understand a repository before they touch it.
 
 </div>
