@@ -24,7 +24,9 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     const stored = localStorage.getItem("theme") as Theme | null;
-    if (stored) setTheme(stored);
+    if (!stored) return;
+    const frame = requestAnimationFrame(() => setTheme(stored));
+    return () => cancelAnimationFrame(frame);
   }, []);
 
   useEffect(() => {

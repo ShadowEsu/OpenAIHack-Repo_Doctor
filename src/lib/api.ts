@@ -255,40 +255,362 @@ export const MOCK_TREATMENTS: Treatment[] = [
   },
 ];
 
-// API functions (currently return mock data)
+const API_BASE_URL = (
+  process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000/api"
+).replace(/\/$/, "");
+
+const EXAMINATION_STAGE_NAMES = [
+  "Validating source",
+  "Extracting files",
+  "Mapping project structure",
+  "Detecting technologies",
+  "Inspecting imports",
+  "Reviewing dependencies",
+  "Examining tests",
+  "Reviewing documentation",
+  "Generating diagnoses",
+  "Calculating health score",
+];
+
+const examinationStarts = new Map<string, { createdAt: number; request: Promise<Examination> }>();
+
+type RawRepository = {
+  id: string;
+  name: string;
+  source_url: string | null;
+  default_branch: string | null;
+  primary_language: string | null;
+  frameworks: string[];
+  repository_size: number;
+  created_at: string;
+};
+
+type RawExamination = {
+  id: string;
+  repository_id: string;
+  status: string;
+  current_stage: string | null;
+  completed_stages: string[];
+  started_at: string | null;
+  completed_at: string | null;
+  health_score: number | null;
+  health_grade: string | null;
+  dimension_scores: Record<string, number>;
+  summary: string | null;
+  error_message: string | null;
+};
+
+type RawProgress = {
+  examination_id: string;
+  status: string;
+  current_stage: string | null;
+  completed_stages: string[];
+  all_stages: string[];
+  error_message: string | null;
+};
+
+type RawDiagnosis = {
+  id: string;
+  examination_id: string;
+  title: string;
+  category: string;
+  severity: string;
+  confidence: number;
+  explanation: string;
+  why_it_matters: string;
+  recommended_action: string;
+  evidence: string | null;
+  repairable: boolean;
+  repair_risk: string | null;
+  repair_effort: string | null;
+  status: string;
+  created_at: string;
+  files: Array<{ file_path: string; start_line: number | null; end_line: number | null }>;
+};
+
+type RawTreatment = {
+  id: string;
+  diagnosis_id: string;
+  status: string;
+  proposal_summary: string;
+  side_effects: string | null;
+  patch: Array<{ path: string; operation: string; new_content: string | null }>;
+  diff_text: string | null;
+  verification_plan: string[];
+  risk_level: string;
+  insertions: number;
+  deletions: number;
+  health_score_before: number | null;
+  health_score_after: number | null;
+  created_at: string;
+  completed_at: string | null;
+};
+
+type RawVerification = {
+  lint_status: string;
+  typecheck_status: string;
+  test_status: string;
+  build_status: string;
+  syntax_status: string;
+  lint_output: string | null;
+  typecheck_output: string | null;
+  test_output: string | null;
+  build_output: string | null;
+  syntax_output: string | null;
+};
+
+async function request<T>(path: string, init?: RequestInit): Promise<T> {
+  const response = await fetch(`${API_BASE_URL}${path}`, {
+    ...init,
+    headers: {
+      ...(init?.body instanceof FormData ? {} : { "Content-Type": "application/json" }),
+      ...init?.headers,
+    },
+  });
+  if (!response.ok) {
+    const body = await response.json().catch(() => ({}));
+    throw new Error(body.detail ?? body.message ?? `Request failed (${response.status})`);
+  }
+  if (response.status === 204) return undefined as T;
+  return response.json() as Promise<T>;
+}
+
+function mapRepository(repo: RawRepository): Repository {
+  const branch = repo.default_branch ?? "main";
+  return {
+    id: repo.id,
+    name: repo.name,
+    fullName: repo.source_url?.replace(/^https?:\/\/github\.com\//, "").replace(/\.git$/, "") ?? repo.name,
+    url: repo.source_url ?? "",
+    branch,
+    defaultBranch: branch,
+    description: null,
+    language: repo.primary_language,
+    size: repo.repository_size,
+    technologies: repo.frameworks.map((name) => ({ name, version: null, confidence: 1 })),
+    createdAt: repo.created_at,
+    lastExaminedAt: null,
+  };
+}
+
+function mapStatus(status: string): Examination["status"] {
+  if (status === "pending") return "queued";
+  if (status === "running") return "scanning";
+  if (status === "completed" || status === "failed") return status;
+  return "scanning";
+}
+
+function mapHealthGrade(grade: string | null): HealthRecord["grade"] {
+  switch (grade?.toLowerCase()) {
+    case "excellent":
+      return "excellent";
+    case "healthy":
+      return "good";
+    case "critical":
+    case "unhealthy":
+      return "critical";
+    default:
+      return "needs_attention";
+  }
+}
+
+function mapExamination(exam: RawExamination | RawProgress): Examination {
+  const names = "all_stages" in exam && exam.all_stages.length
+    ? exam.all_stages
+    : EXAMINATION_STAGE_NAMES;
+  const completed = new Set(exam.completed_stages);
+  const current = exam.current_stage;
+  return {
+    id: "examination_id" in exam ? exam.examination_id : exam.id,
+    repositoryId: "repository_id" in exam ? exam.repository_id : "",
+    status: mapStatus(exam.status),
+    progress: names.length ? Math.round((completed.size / names.length) * 100) : 0,
+    currentStage: current ?? (exam.status === "completed" ? "completed" : "queued"),
+    stages: names.map((name) => ({
+      name,
+      status: completed.has(name)
+        ? "completed"
+        : name === current && exam.status !== "failed"
+          ? "running"
+          : name === current
+            ? "failed"
+            : "pending",
+      startedAt: null,
+      completedAt: null,
+    })),
+    startedAt: "started_at" in exam && exam.started_at ? exam.started_at : new Date().toISOString(),
+    completedAt: "completed_at" in exam ? exam.completed_at : null,
+    error: exam.error_message,
+  };
+}
+
+function mapDiagnosis(repoId: string, diagnosis: RawDiagnosis): Diagnosis {
+  const files = diagnosis.files.map((file) => ({
+    path: file.file_path,
+    lines: file.start_line == null
+      ? []
+      : [[file.start_line, file.end_line ?? file.start_line] as [number, number]],
+    relevance: diagnosis.explanation,
+  }));
+  return {
+    id: diagnosis.id,
+    repositoryId: repoId,
+    healthRecordId: diagnosis.examination_id,
+    title: diagnosis.title,
+    summary: diagnosis.why_it_matters,
+    description: `${diagnosis.explanation}\n\nRecommended action: ${diagnosis.recommended_action}`,
+    severity: diagnosis.severity as Diagnosis["severity"],
+    confidence: diagnosis.confidence,
+    category: diagnosis.category,
+    affectedFiles: files,
+    evidence: diagnosis.evidence ? [{
+      type: "code",
+      description: diagnosis.evidence,
+      filePath: files[0]?.path ?? null,
+      lines: files[0]?.lines ?? null,
+      snippet: null,
+    }] : [],
+    repairable: diagnosis.repairable,
+    repairRisk: (diagnosis.repair_risk ?? "medium") as Diagnosis["repairRisk"],
+    repairEffort: (diagnosis.repair_effort ?? "moderate") as Diagnosis["repairEffort"],
+    status: diagnosis.status === "treated" ? "resolved" : diagnosis.status as Diagnosis["status"],
+    createdAt: diagnosis.created_at,
+  };
+}
+
+function verificationSteps(runs: RawVerification[]): Treatment["verification"] {
+  const run = runs.at(-1);
+  if (!run) return { steps: [], overallStatus: "pending" };
+  const checks = [
+    ["Syntax", "syntax", run.syntax_status, run.syntax_output],
+    ["Linting", "lint", run.lint_status, run.lint_output],
+    ["Type checking", "typecheck", run.typecheck_status, run.typecheck_output],
+    ["Tests", "test", run.test_status, run.test_output],
+    ["Build", "build", run.build_status, run.build_output],
+  ] as const;
+  const steps = checks.map(([name, command, status, output]) => ({
+    name,
+    command,
+    status: (status === "skipped" ? "unavailable" : status) as Treatment["verification"]["steps"][number]["status"],
+    output,
+    duration: null,
+  }));
+  const statuses = steps.map((step) => step.status);
+  const overallStatus = statuses.includes("failed")
+    ? "failed"
+    : statuses.some((status) => status === "passed")
+      ? "passed"
+      : "pending";
+  return { steps, overallStatus };
+}
+
+async function mapTreatment(repoId: string, raw: RawTreatment): Promise<Treatment> {
+  const runs = await request<RawVerification[]>(`/treatments/${raw.id}/verification`);
+  const status = raw.status === "succeeded" ? "completed" : raw.status;
+  return {
+    id: raw.id,
+    repositoryId: repoId,
+    diagnosisId: raw.diagnosis_id,
+    status: status as Treatment["status"],
+    proposal: {
+      summary: raw.proposal_summary,
+      risk: raw.risk_level as Treatment["proposal"]["risk"],
+      affectedFiles: raw.patch.map((operation) => operation.path),
+      assumptions: raw.side_effects ? [raw.side_effects] : [],
+      verificationPlan: raw.verification_plan,
+    },
+    patches: raw.patch.map((operation, index) => ({
+      path: operation.path,
+      operation: (operation.operation === "create" ? "add" : operation.operation) as Treatment["patches"][number]["operation"],
+      additions: index === 0 ? raw.insertions : 0,
+      deletions: index === 0 ? raw.deletions : 0,
+      diff: index === 0 ? raw.diff_text ?? "" : "",
+      explanation: raw.proposal_summary,
+    })),
+    verification: verificationSteps(runs),
+    scoreBefore: raw.health_score_before,
+    scoreAfter: raw.health_score_after,
+    createdAt: raw.created_at,
+    completedAt: raw.completed_at,
+  };
+}
+
 export async function getRepositories(): Promise<Repository[]> {
-  return [MOCK_REPO];
+  return (await request<RawRepository[]>("/repositories")).map(mapRepository);
 }
 
 export async function getRepository(id: string): Promise<Repository> {
-  return { ...MOCK_REPO, id };
+  return mapRepository(await request<RawRepository>(`/repositories/${id}`));
 }
 
 export async function connectRepository(url: string): Promise<Repository> {
-  return MOCK_REPO;
+  return mapRepository(await request<RawRepository>("/repositories/github", {
+    method: "POST",
+    body: JSON.stringify({ url }),
+  }));
+}
+
+export async function uploadRepository(file: File): Promise<Repository> {
+  const body = new FormData();
+  body.append("file", file);
+  return mapRepository(await request<RawRepository>("/repositories/upload", { method: "POST", body }));
 }
 
 export async function getExamination(repoId: string): Promise<Examination> {
-  return MOCK_EXAMINATION;
+  return mapExamination(await request<RawExamination>(`/repositories/${repoId}/examinations/latest`));
+}
+
+export async function getExaminationProgress(examinationId: string): Promise<Examination> {
+  return mapExamination(await request<RawProgress>(`/examinations/${examinationId}/progress`));
 }
 
 export async function startExamination(repoId: string): Promise<Examination> {
-  return { ...MOCK_EXAMINATION, status: "queued", progress: 0 };
+  const existing = examinationStarts.get(repoId);
+  if (existing && Date.now() - existing.createdAt < 2_000) return existing.request;
+  const startRequest = request<RawExamination>(`/repositories/${repoId}/examinations`, { method: "POST" })
+    .then(mapExamination);
+  examinationStarts.set(repoId, { createdAt: Date.now(), request: startRequest });
+  return startRequest;
 }
 
 export async function getHealthRecord(repoId: string): Promise<HealthRecord> {
-  return MOCK_HEALTH;
+  const exam = await request<RawExamination>(`/repositories/${repoId}/examinations/latest`);
+  const record = await request<{
+    examination: RawExamination;
+    critical_count: number;
+    high_count: number;
+    warning_count: number;
+    improvement_count: number;
+  }>(`/examinations/${exam.id}/health-record`);
+  const dimensions = Object.entries(record.examination.dimension_scores ?? {});
+  return {
+    id: exam.id,
+    repositoryId: repoId,
+    examinationId: exam.id,
+    score: record.examination.health_score ?? 0,
+    grade: mapHealthGrade(record.examination.health_grade),
+    previousScore: null,
+    scoreChange: null,
+    dimensions: dimensions.map(([name, score]) => ({
+      name: name.replace(/_/g, " ").replace(/\b\w/g, (letter) => letter.toUpperCase()),
+      score,
+      weight: dimensions.length ? 1 / dimensions.length : 0,
+      findings: name === "security" ? record.critical_count : 0,
+      summary: `${name.replace(/_/g, " ")} health score`,
+    })),
+    summary: record.examination.summary ?? "Repository examination completed.",
+    examinedAt: record.examination.completed_at ?? new Date().toISOString(),
+  };
 }
 
 export async function getDiagnoses(repoId: string): Promise<Diagnosis[]> {
-  return MOCK_DIAGNOSES;
+  const exam = await request<RawExamination>(`/repositories/${repoId}/examinations/latest`);
+  return (await request<RawDiagnosis[]>(`/examinations/${exam.id}/diagnoses`))
+    .map((diagnosis) => mapDiagnosis(repoId, diagnosis));
 }
 
-export async function getDiagnosis(
-  repoId: string,
-  diagnosisId: string
-): Promise<Diagnosis | undefined> {
-  return MOCK_DIAGNOSES.find((d) => d.id === diagnosisId);
+export async function getDiagnosis(repoId: string, diagnosisId: string): Promise<Diagnosis | undefined> {
+  return mapDiagnosis(repoId, await request<RawDiagnosis>(`/diagnoses/${diagnosisId}`));
 }
 
 export async function updateDiagnosisStatus(
@@ -296,39 +618,42 @@ export async function updateDiagnosisStatus(
   diagnosisId: string,
   status: "open" | "resolved" | "dismissed"
 ): Promise<Diagnosis | undefined> {
-  const diag = MOCK_DIAGNOSES.find((d) => d.id === diagnosisId);
-  if (diag) diag.status = status;
-  return diag;
+  const raw = await request<RawDiagnosis>(`/diagnoses/${diagnosisId}/status`, {
+    method: "PATCH",
+    body: JSON.stringify({ status: status === "resolved" ? "treated" : status }),
+  });
+  return mapDiagnosis(repoId, raw);
 }
 
 export async function getTreatments(repoId: string): Promise<Treatment[]> {
-  return MOCK_TREATMENTS;
+  const treatments = await request<RawTreatment[]>(`/repositories/${repoId}/treatments`);
+  return Promise.all(treatments.map((treatment) => mapTreatment(repoId, treatment)));
 }
 
-export async function getTreatment(
-  repoId: string,
-  treatmentId: string
-): Promise<Treatment | undefined> {
-  return MOCK_TREATMENTS.find((t) => t.id === treatmentId);
+export async function getTreatment(repoId: string, treatmentId: string): Promise<Treatment | undefined> {
+  return mapTreatment(repoId, await request<RawTreatment>(`/treatments/${treatmentId}`));
 }
 
-export async function createTreatment(
-  repoId: string,
-  diagnosisId: string
-): Promise<Treatment> {
-  return MOCK_TREATMENTS[0];
+export async function createTreatment(repoId: string, diagnosisId: string): Promise<Treatment> {
+  const treatment = await request<RawTreatment>(`/diagnoses/${diagnosisId}/treatment-proposal`, { method: "POST" });
+  return mapTreatment(repoId, treatment);
 }
 
-export async function approveTreatment(
-  repoId: string,
-  treatmentId: string
-): Promise<Treatment> {
-  return MOCK_TREATMENTS[0];
+export async function approveTreatment(repoId: string, treatmentId: string): Promise<Treatment> {
+  await request<RawTreatment>(`/treatments/${treatmentId}/approve`, { method: "POST" });
+  await request<RawTreatment>(`/treatments/${treatmentId}/apply`, { method: "POST" });
+  for (let attempt = 0; attempt < 120; attempt += 1) {
+    const treatment = await request<RawTreatment>(`/treatments/${treatmentId}`);
+    if (["succeeded", "failed"].includes(treatment.status)) return mapTreatment(repoId, treatment);
+    await new Promise((resolve) => setTimeout(resolve, 500));
+  }
+  return getTreatment(repoId, treatmentId) as Promise<Treatment>;
 }
 
-export async function rollbackTreatment(
-  repoId: string,
-  treatmentId: string
-): Promise<Treatment> {
-  return MOCK_TREATMENTS[0];
+export async function rollbackTreatment(repoId: string, treatmentId: string): Promise<Treatment> {
+  return mapTreatment(repoId, await request<RawTreatment>(`/treatments/${treatmentId}/rollback`, { method: "POST" }));
+}
+
+export function getTreatmentDownloadUrl(treatmentId: string): string {
+  return `${API_BASE_URL}/treatments/${treatmentId}/download`;
 }

@@ -93,8 +93,9 @@ safe treatments that improve code quality without breaking anything.
 
 ### Prerequisites
 
-- Node.js 18+ (recommended: 20)
-- npm, yarn, or pnpm
+- Node.js 20+
+- Python 3.10+
+- Git (required when examining a public GitHub repository)
 
 ### Installation
 
@@ -103,14 +104,34 @@ safe treatments that improve code quality without breaking anything.
 git clone https://github.com/ShadowEsu/OpenAIHack-Repo_Doctor.git
 cd OpenAIHack-Repo_Doctor
 
-# Install dependencies
-npm install
+# Install exact frontend dependencies
+npm ci
 
-# Start development server
+# Configure the frontend-to-backend URL
+cp .env.example .env.local
+
+# Install backend dependencies
+cd apps/api
+python3 -m venv .venv
+.venv/bin/pip install -r requirements.txt
+cp .env.example .env
+
+# Start the backend (terminal 1)
+.venv/bin/uvicorn app.main:app --reload --port 8000
+
+# Start the frontend (terminal 2, from the repository root)
+cd ../..
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) in your browser.
+Open [http://localhost:3000](http://localhost:3000) in your browser. The backend
+health check is available at [http://localhost:8000/api/health](http://localhost:8000/api/health).
+
+An OpenAI API key is **not configured yet and is not required to run the app**.
+Without it, Repo Doctor uses its deterministic rule-based diagnosis engine. When
+the team is ready, put `OPENAI_API_KEY` only in `apps/api/.env` or the backend
+hosting provider's secret settings. Never put it in a `NEXT_PUBLIC_` variable or
+commit it to Git.
 
 ### Available Commands
 
@@ -151,7 +172,7 @@ src/
 │
 ├── lib/                          # Utilities and types
 │   ├── types.ts                  # TypeScript interfaces
-│   ├── api.ts                    # API client + mock data
+│   ├── api.ts                    # FastAPI client + sample-page fixtures
 │   ├── utils.ts                  # Helper functions
 │   ├── theme-provider.tsx        # Dark mode context
 │   └── providers.tsx             # TanStack Query provider
@@ -216,29 +237,31 @@ Every diagnosis uses **icon + text + color** (never color-only):
 
 ## API Contract
 
-The frontend expects these endpoints from the backend:
+The product frontend is connected to these FastAPI endpoints:
 
 ```typescript
-POST   /api/repos/connect              // Connect repository
-GET    /api/repos                       // List repositories
-GET    /api/repos/:id                   // Get repository
-DELETE /api/repos/:id                   // Delete repository
+POST   /api/repositories/github
+POST   /api/repositories/upload
+GET    /api/repositories[/:id]
+DELETE /api/repositories/:id
 
-POST   /api/repos/:id/examine           // Start examination
-GET    /api/repos/:id/examination        // Get examination status
+POST   /api/repositories/:id/examinations
+GET    /api/repositories/:id/examinations/latest
+GET    /api/examinations/:id/progress
+GET    /api/examinations/:id/health-record
+GET    /api/examinations/:id/diagnoses
 
-GET    /api/repos/:id/health             // Get latest health record
-GET    /api/repos/:id/health/history     // Get health history
+GET    /api/diagnoses/:id
+PATCH  /api/diagnoses/:id/status
+POST   /api/diagnoses/:id/treatment-proposal
 
-GET    /api/repos/:id/diagnoses          // List diagnoses
-GET    /api/repos/:id/diagnoses/:id      // Get diagnosis
-PATCH  /api/repos/:id/diagnoses/:id      // Update diagnosis status
-
-POST   /api/repos/:id/treatments         // Create treatment proposal
-GET    /api/repos/:id/treatments         // List treatments
-GET    /api/repos/:id/treatments/:id     // Get treatment
-POST   /api/repos/:id/treatments/:id/approve  // Approve treatment
-POST   /api/repos/:id/treatments/:id/rollback // Rollback treatment
+GET    /api/repositories/:id/treatments
+GET    /api/treatments/:id
+POST   /api/treatments/:id/approve
+POST   /api/treatments/:id/apply
+GET    /api/treatments/:id/verification
+POST   /api/treatments/:id/rollback
+GET    /api/treatments/:id/download
 ```
 
 TypeScript types are defined in `src/lib/types.ts`.
@@ -268,15 +291,24 @@ TypeScript types are defined in `src/lib/types.ts`.
 
 ---
 
-## Environment Variables
+## Environment Variables and Deployment
 
-No environment variables required for development. The app uses mock data.
-
-For production, configure:
+For the frontend, configure the public backend URL at build time:
 
 ```env
-NEXT_PUBLIC_API_URL=https://your-api.com
+NEXT_PUBLIC_API_URL=https://your-api.example.com/api
 ```
+
+For the FastAPI service, configure `DATABASE_URL`, `WORKSPACE_ROOT`, and
+`CORS_ORIGINS=https://your-frontend.example.com`. `OPENAI_API_KEY` remains
+optional. The backend includes a production Dockerfile at `apps/api/Dockerfile`;
+deploy that service to a host with persistent storage, then deploy the Next.js
+frontend with `NEXT_PUBLIC_API_URL` set to its HTTPS API URL.
+
+Before a release, run `npm run build`, `npm run lint`, and
+`apps/api/.venv/bin/pytest -q` from their respective directories, then repeat
+the complete connect → examine → diagnose → treat → verify → download → rollback
+flow against the deployed URLs.
 
 ---
 

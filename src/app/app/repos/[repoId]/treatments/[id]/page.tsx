@@ -13,6 +13,7 @@ import {
   getRepository,
   getTreatment,
   getDiagnosis,
+  getTreatmentDownloadUrl,
   approveTreatment,
   rollbackTreatment,
 } from "@/lib/api";
@@ -128,6 +129,7 @@ export default function TreatmentDetailPage() {
             diagnosis={diagnosis ?? undefined}
             onApprove={treatment.status === "proposed" ? handleApprove : undefined}
             onCancel={handleCancel}
+            isApproving={isApproving}
           />
         )}
 
@@ -157,6 +159,9 @@ export default function TreatmentDetailPage() {
         {(treatment.status === "completed" || treatment.status === "failed") && (
           <TreatmentResult
             treatment={treatment}
+            onDownload={() => {
+              window.location.href = getTreatmentDownloadUrl(treatment.id);
+            }}
             onRollback={
               treatment.status === "completed" ? handleRollback : undefined
             }

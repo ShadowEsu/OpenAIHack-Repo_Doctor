@@ -3,14 +3,16 @@
 import { Filter, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 
+interface DiagnosisFilterValues {
+  severity?: string;
+  category?: string;
+  status?: string;
+  repairable?: boolean;
+}
+
 interface DiagnosisFiltersProps {
-  filters: {
-    severity?: string;
-    category?: string;
-    status?: string;
-    repairable?: boolean;
-  };
-  onChange: (filters: any) => void;
+  filters: DiagnosisFilterValues;
+  onChange: (filters: DiagnosisFilterValues) => void;
 }
 
 const severities = ["critical", "high", "medium", "low"];

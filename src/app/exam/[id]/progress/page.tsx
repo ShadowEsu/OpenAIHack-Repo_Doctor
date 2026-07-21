@@ -5,7 +5,7 @@ import { useRouter, useParams } from "next/navigation";
 import { motion } from "framer-motion";
 import { CheckCircle2, Loader2, Circle, X, AlertCircle, RotateCcw } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { startExamination } from "@/lib/api";
+import { getExaminationProgress, startExamination } from "@/lib/api";
 import type { ExaminationStage, ExaminationStatus } from "@/lib/types";
 
 const STAGES: ExaminationStage[] = [
@@ -24,81 +24,58 @@ const STAGES: ExaminationStage[] = [
 export default function ExamProgressPage() {
   const router = useRouter();
   const params = useParams();
-  const examId = params.id as string;
+  const repoId = params.id as string;
 
   const [stages, setStages] = useState<ExaminationStage[]>(STAGES);
-  const [currentStageIndex, setCurrentStageIndex] = useState(0);
   const [status, setStatus] = useState<ExaminationStatus>("queued");
   const [elapsedTime, setElapsedTime] = useState(0);
   const [isCancelled, setIsCancelled] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [runAttempt, setRunAttempt] = useState(0);
 
-  // Simulate examination progress
   useEffect(() => {
-    if (isCancelled || error) return;
+    let stopped = false;
+    let redirectTimer: ReturnType<typeof setTimeout> | undefined;
 
-    const interval = setInterval(() => {
-      setElapsedTime((prev) => prev + 100);
-
-      // Simulate random failure (5% chance per stage)
-      if (Math.random() < 0.02 && currentStageIndex < STAGES.length) {
-        clearInterval(interval);
-        setStages((prev) => {
-          const next = [...prev];
-          next[currentStageIndex] = {
-            ...next[currentStageIndex],
-            status: "failed",
-            completedAt: new Date().toISOString(),
-          };
-          return next;
-        });
-        setStatus("failed");
-        setError(
-          `Examination failed at "${STAGES[currentStageIndex].name}". The repository may contain unsupported file types or exceed size limits.`
-        );
-        return;
+    async function runExamination() {
+      try {
+        const started = await startExamination(repoId);
+        let latest = started;
+        while (!stopped) {
+          latest = await getExaminationProgress(started.id);
+          setStages(latest.stages);
+          setStatus(latest.status);
+          setError(latest.error);
+          if (latest.status === "completed") {
+            redirectTimer = setTimeout(() => router.push(`/app/repos/${repoId}`), 1500);
+            return;
+          }
+          if (latest.status === "failed") {
+            setError(latest.error ?? "The examination failed. Please try again.");
+            return;
+          }
+          await new Promise((resolve) => setTimeout(resolve, 500));
+        }
+      } catch (cause) {
+        if (!stopped) {
+          setStatus("failed");
+          setError(cause instanceof Error ? cause.message : "The examination could not be started.");
+        }
       }
+    }
 
-      setStages((prev) => {
-        const next = [...prev];
-        const idx = currentStageIndex;
+    if (!isCancelled) void runExamination();
+    return () => {
+      stopped = true;
+      if (redirectTimer) clearTimeout(redirectTimer);
+    };
+  }, [repoId, isCancelled, router, runAttempt]);
 
-        if (idx >= next.length) {
-          clearInterval(interval);
-          setStatus("completed");
-          setTimeout(() => {
-            router.push(`/app/repos/${examId}`);
-          }, 1500);
-          return next;
-        }
-
-        // Mark current stage as running if pending
-        if (next[idx].status === "pending") {
-          next[idx] = {
-            ...next[idx],
-            status: "running",
-            startedAt: new Date().toISOString(),
-          };
-          setStatus("scanning");
-        }
-
-        // Complete current stage after random delay
-        const shouldComplete = Math.random() > 0.6;
-        if (shouldComplete && next[idx].status === "running") {
-          next[idx] = {
-            ...next[idx],
-            status: "completed",
-            completedAt: new Date().toISOString(),
-          };
-          setCurrentStageIndex((prev) => prev + 1);
-        }
-
-        return next;
-      });
-    }, 100);
-
-    return () => clearInterval(interval);
-  }, [currentStageIndex, examId, isCancelled, error, router]);
+  useEffect(() => {
+    if (isCancelled || status === "completed" || status === "failed") return;
+    const timer = setInterval(() => setElapsedTime((previous) => previous + 100), 100);
+    return () => clearInterval(timer);
+  }, [isCancelled, status]);
 
   const completedCount = stages.filter((s) => s.status === "completed").length;
   const progress = (completedCount / stages.length) * 100;
@@ -247,9 +224,9 @@ export default function ExamProgressPage() {
                   onClick={() => {
                     setError(null);
                     setStatus("queued");
-                    setCurrentStageIndex(0);
                     setStages(STAGES);
                     setElapsedTime(0);
+                    setRunAttempt((attempt) => attempt + 1);
                   }}
                   className={cn(
                     "inline-flex items-center gap-2 rounded-lg bg-accent px-4 py-2 text-sm font-medium text-white",

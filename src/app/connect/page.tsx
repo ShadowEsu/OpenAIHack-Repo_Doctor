@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { GitBranch, Upload, AlertCircle, Link2 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { connectRepository } from "@/lib/api";
+import { connectRepository, uploadRepository } from "@/lib/api";
 
 export default function ConnectPage() {
   const router = useRouter();
@@ -38,8 +38,8 @@ export default function ConnectPage() {
     try {
       const repo = await connectRepository(githubUrl);
       router.push(`/exam/${repo.id}/progress`);
-    } catch (err) {
-      setError("Failed to connect repository. Please check the URL and try again.");
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : "Failed to connect repository. Please check the URL and try again.");
     } finally {
       setIsSubmitting(false);
     }
@@ -55,11 +55,28 @@ export default function ConnectPage() {
     setIsDragging(false);
   };
 
+  const handleFile = async (file: File) => {
+    setError(null);
+    if (!file.name.toLowerCase().endsWith(".zip")) {
+      setError("Please select a ZIP archive.");
+      return;
+    }
+    setIsSubmitting(true);
+    try {
+      const repo = await uploadRepository(file);
+      router.push(`/exam/${repo.id}/progress`);
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : "The ZIP archive could not be uploaded.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault();
     setIsDragging(false);
-    // ZIP upload handling would go here
-    setError("ZIP upload is not yet available. Please use the GitHub URL option.");
+    const file = e.dataTransfer.files[0];
+    if (file) void handleFile(file);
   };
 
   return (
@@ -156,11 +173,10 @@ export default function ConnectPage() {
                 accept=".zip"
                 className="absolute inset-0 cursor-pointer opacity-0"
                 aria-label="Upload ZIP file"
+                disabled={isSubmitting}
                 onChange={(e) => {
                   const file = e.target.files?.[0];
-                  if (file) {
-                    setError("ZIP upload is not yet available. Please use the GitHub URL option.");
-                  }
+                  if (file) void handleFile(file);
                 }}
               />
               <Upload className="mb-3 h-8 w-8 text-text-muted" />
@@ -168,7 +184,7 @@ export default function ConnectPage() {
                 Drop a ZIP file here
               </p>
               <p className="text-xs text-text-muted">
-                Maximum size: 50 MB
+                Maximum size: 100 MB
               </p>
             </div>
           </div>
@@ -180,9 +196,9 @@ export default function ConnectPage() {
               <div className="text-xs leading-relaxed text-info">
                 <p className="font-medium mb-1">Privacy & Security</p>
                 <p>
-                  We only read your public repository contents. Your code is analyzed
-                  in a secure environment and is never stored beyond the examination
-                  session. No changes are made to your repository.
+                  Public repositories are shallow-cloned and ZIP uploads are extracted
+                  into an isolated backend workspace. Treatments modify only a working
+                  copy; your original repository is never changed.
                 </p>
               </div>
             </div>

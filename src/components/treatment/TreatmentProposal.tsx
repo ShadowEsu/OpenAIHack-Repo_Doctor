@@ -9,6 +9,7 @@ interface TreatmentProposalProps {
   diagnosis?: Diagnosis;
   onApprove?: () => void;
   onCancel?: () => void;
+  isApproving?: boolean;
 }
 
 const riskConfig = {
@@ -17,7 +18,7 @@ const riskConfig = {
   high: { label: "High Risk", icon: FileWarning, color: "text-critical", bg: "bg-critical-light" },
 };
 
-export function TreatmentProposal({ proposal, diagnosis, onApprove, onCancel }: TreatmentProposalProps) {
+export function TreatmentProposal({ proposal, diagnosis, onApprove, onCancel, isApproving = false }: TreatmentProposalProps) {
   const risk = riskConfig[proposal.risk];
   const RiskIcon = risk.icon;
 
@@ -68,12 +69,13 @@ export function TreatmentProposal({ proposal, diagnosis, onApprove, onCancel }: 
         {onApprove && (
           <button
             onClick={onApprove}
+            disabled={isApproving}
             className={cn(
               "rounded-lg px-5 py-2.5 text-sm font-medium transition-colors",
-              "bg-accent text-white hover:bg-accent/90"
+              "bg-accent text-white hover:bg-accent/90 disabled:cursor-not-allowed disabled:opacity-60"
             )}
           >
-            Approve and Run Verification
+            {isApproving ? "Applying and verifying..." : "Approve and Run Verification"}
           </button>
         )}
         {onCancel && (

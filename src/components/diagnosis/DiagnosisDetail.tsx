@@ -27,23 +27,18 @@ interface DiagnosisDetailProps {
   onMarkResolved?: () => void;
 }
 
-function severityIcon(severity: Diagnosis["severity"]) {
-  switch (severity) {
-    case "critical":
-      return AlertTriangle;
-    case "high":
-      return ArrowUp;
-    case "medium":
-      return Minus;
-    case "low":
-      return ArrowDown;
-  }
-}
+const SEVERITY_ICONS = {
+  critical: AlertTriangle,
+  high: ArrowUp,
+  medium: Minus,
+  low: ArrowDown,
+} as const;
 
-function riskIcon(risk: string) {
-  if (risk === "low") return ShieldCheck;
-  return ShieldAlert;
-}
+const RISK_ICONS = {
+  low: ShieldCheck,
+  medium: ShieldAlert,
+  high: ShieldAlert,
+} as const;
 
 function effortLabel(effort: string): string {
   switch (effort) {
@@ -79,8 +74,8 @@ export function DiagnosisDetail({
     status,
   } = diagnosis;
 
-  const SeverityIcon = severityIcon(severity);
-  const RiskIcon = riskIcon(repairRisk);
+  const SeverityIcon = SEVERITY_ICONS[severity];
+  const RiskIcon = RISK_ICONS[repairRisk];
 
   return (
     <motion.div

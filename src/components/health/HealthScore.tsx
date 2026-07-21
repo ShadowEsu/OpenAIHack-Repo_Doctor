@@ -18,7 +18,7 @@ function AnimatedNumber({ value, duration = 1000 }: { value: number; duration?: 
   const [displayValue, setDisplayValue] = useState(0);
 
   useEffect(() => {
-    let start = 0;
+    const start = 0;
     const end = value;
     const startTime = Date.now();
 
