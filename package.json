@@ -6,6 +6,8 @@
   "main": "electron/main.cjs",
   "scripts": {
     "dev": "vite",
+    "server": "node server/index.mjs",
+    "dev:all": "npm run server & npm run dev",
     "build": "tsc -b && vite build",
     "preview": "vite preview",
     "desktop:preview": "npm run build && electron .",

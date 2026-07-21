@@ -7,10 +7,15 @@ reviewing diagnoses, and approving only safe, verifiable treatments.
 
 ```bash
 npm install
-npm run dev
+npm run dev:all
 ```
 
-Open the local URL printed by Vite. Build the production bundle with:
+Open the local URL printed by Vite. This starts the Vite frontend and the
+included API at `http://localhost:8787/api`; the intake form validates public
+GitHub URLs and displays server-supplied examination progress. To run them
+separately, use `npm run server` and `npm run dev` in two terminals.
+
+Build the production bundle with:
 
 ```bash
 npm run build
@@ -18,9 +23,14 @@ npm run build
 
 ## Backend integration
 
-The initial checkout did not contain a backend. The interface is deliberately
-honest about that state: without `VITE_API_BASE_URL`, repository validation
-shows a recoverable unavailable message instead of fabricated analysis data.
+The project now includes a local, dependency-free backend for repository
+intake. It validates public GitHub repositories through GitHub's API and
+exposes `POST /api/repositories`, `GET /api/examinations/:id/progress`, and
+`GET /api/examinations/:id`, plus `GET /api/health`. The completed health
+record includes file-tree, language, CI, test, documentation, and lockfile
+signals, each described as a structural observation rather than an invented
+code-level diagnosis. Examinations are read-only and live in memory for the
+server process.
 
 To connect a compatible service, copy `.env.example` to `.env` and set
 `VITE_API_BASE_URL`. The current service boundary expects `POST /repositories`

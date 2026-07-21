@@ -1,5 +1,8 @@
-import type { ApiError, Examination, ExaminationProgress, RepositorySubmission } from './types';
-const baseUrl = import.meta.env.VITE_API_BASE_URL?.replace(/\/$/, '');
+import type { ApiError, Examination, ExaminationProgress, HealthRecord, RepositorySubmission } from './types';
+const configuredBaseUrl = import.meta.env.VITE_API_BASE_URL?.replace(/\/$/, '');
+// The bundled service is the zero-configuration local development target. A
+// deployed app must explicitly provide its API URL through VITE_API_BASE_URL.
+const baseUrl = configuredBaseUrl || (window.location.hostname === 'localhost' ? 'http://localhost:8787/api' : '');
 export const apiConfigured = Boolean(baseUrl);
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
   if (!baseUrl) throw { message: 'The Repo Doctor backend has not been configured.', code: 'BACKEND_UNAVAILABLE' } satisfies ApiError;
@@ -9,4 +12,4 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
   } catch (error) { if (error instanceof DOMException && error.name === 'AbortError') throw { message: 'The request timed out. Please try again.', code: 'TIMEOUT' } satisfies ApiError; throw error; } finally { window.clearTimeout(timeout); }
 }
 export const repositoryApi = { submit: (submission: RepositorySubmission) => request<Examination>('/repositories', { method: 'POST', body: JSON.stringify(submission) }) };
-export const examinationApi = { progress: (id: string) => request<ExaminationProgress>(`/examinations/${encodeURIComponent(id)}/progress`) };
+export const examinationApi = { progress: (id: string) => request<ExaminationProgress>(`/examinations/${encodeURIComponent(id)}/progress`), get: (id: string) => request<HealthRecord>(`/examinations/${encodeURIComponent(id)}`) };
