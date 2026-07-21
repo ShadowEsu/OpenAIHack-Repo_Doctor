@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { GitBranch, Upload, AlertCircle, Link2 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { connectRepository } from "@/lib/api";
 
 export default function ConnectPage() {
   const router = useRouter();
@@ -34,15 +33,7 @@ export default function ConnectPage() {
     }
 
     setIsSubmitting(true);
-
-    try {
-      const repo = await connectRepository(githubUrl);
-      router.push(`/exam/${repo.id}/progress`);
-    } catch (err) {
-      setError("Failed to connect repository. Please check the URL and try again.");
-    } finally {
-      setIsSubmitting(false);
-    }
+    router.push(`/scan?url=${encodeURIComponent(githubUrl.trim())}`);
   };
 
   const handleDragOver = (e: React.DragEvent) => {
