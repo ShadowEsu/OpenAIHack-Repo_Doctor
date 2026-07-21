@@ -7,7 +7,7 @@ type Review = { score: number; summary: string; findings: Finding[] };
 
 function normalizeReview(value: Review): Review {
   const severity = new Set(["critical", "high", "medium", "low"]);
-  const findings = Array.isArray(value.findings) ? value.findings.slice(0, 8).map((finding, index) => ({
+  const candidates = Array.isArray(value.findings) ? value.findings.slice(0, 8).map((finding, index) => ({
     id: `finding-${index + 1}`,
     title: String(finding.title || "Repository finding"),
     severity: severity.has(finding.severity) ? finding.severity : "medium" as Finding["severity"],
@@ -17,6 +17,7 @@ function normalizeReview(value: Review): Review {
     path: typeof finding.path === "string" ? finding.path : null,
     repairable: Boolean(finding.repairable),
   })) : [];
+  const findings = candidates.filter((finding) => !/\b(language metadata|missing language|empty topics|no topics|no manifest|missing manifest|empty manifest)\b/i.test(`${finding.title} ${finding.summary} ${finding.evidence}`));
   const impact = { critical: 28, high: 16, medium: 9, low: 3 };
   return {
     score: Math.max(0, 100 - findings.reduce((total, finding) => total + impact[finding.severity], 0)),
