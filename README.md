@@ -1,5 +1,7 @@
 <div align="center">
 
+<img src="public/logo.png" width="112" alt="Repo Doctor logo" />
+
 # Repo Doctor
 
 ### A calm, evidence-first workspace for repository health.
