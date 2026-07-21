@@ -265,7 +265,10 @@ export async function getRepository(id: string): Promise<Repository> {
 }
 
 export async function connectRepository(url: string): Promise<Repository> {
-  return MOCK_REPO;
+  const response = await fetch("/api/repositories", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ url }) });
+  const payload = await response.json() as Repository | { message?: string };
+  if (!response.ok) throw new Error("message" in payload ? payload.message : "Could not connect repository.");
+  return payload as Repository;
 }
 
 export async function getExamination(repoId: string): Promise<Examination> {

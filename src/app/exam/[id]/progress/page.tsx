@@ -40,25 +40,6 @@ export default function ExamProgressPage() {
     const interval = setInterval(() => {
       setElapsedTime((prev) => prev + 100);
 
-      // Simulate random failure (5% chance per stage)
-      if (Math.random() < 0.02 && currentStageIndex < STAGES.length) {
-        clearInterval(interval);
-        setStages((prev) => {
-          const next = [...prev];
-          next[currentStageIndex] = {
-            ...next[currentStageIndex],
-            status: "failed",
-            completedAt: new Date().toISOString(),
-          };
-          return next;
-        });
-        setStatus("failed");
-        setError(
-          `Examination failed at "${STAGES[currentStageIndex].name}". The repository may contain unsupported file types or exceed size limits.`
-        );
-        return;
-      }
-
       setStages((prev) => {
         const next = [...prev];
         const idx = currentStageIndex;
