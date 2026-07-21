@@ -10,6 +10,13 @@ class GitHubIntakeRequest(BaseModel):
     url: HttpUrl = Field(description="Public GitHub repository URL")
 
 
+class FrontendRepositorySubmission(BaseModel):
+    """Compatibility payload used by the existing Vite frontend."""
+
+    source: str = Field(pattern="^github$")
+    url: HttpUrl = Field(description="Public GitHub repository URL")
+
+
 class RepositoryOut(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
@@ -56,6 +63,10 @@ class ExaminationProgress(BaseModel):
     completed_stages: list[str] = []
     all_stages: list[str] = []
     error_message: Optional[str] = None
+    stage: Optional[str] = None
+    completed: int = 0
+    total: int = 0
+    message: Optional[str] = None
 
 
 class FindingOut(BaseModel):

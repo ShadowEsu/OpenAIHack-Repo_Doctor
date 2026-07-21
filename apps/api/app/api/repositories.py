@@ -1,12 +1,13 @@
 from __future__ import annotations
 
-from fastapi import APIRouter, Depends, File, HTTPException, UploadFile
+from fastapi import APIRouter, BackgroundTasks, Depends, File, HTTPException, UploadFile
 from sqlalchemy.orm import Session
 
-from app.db import get_db
-from app.models import Repository
-from app.schemas import GitHubIntakeRequest, RepositoryOut
+from app.db import SessionLocal, get_db
+from app.models import Examination, Repository
+from app.schemas import FrontendRepositorySubmission, GitHubIntakeRequest, RepositoryOut
 from app.services import intake
+from app.services.examination import run_examination
 from app.services.inventory import build_inventory
 
 router = APIRouter(prefix="/api/repositories", tags=["repositories"])
@@ -32,6 +33,33 @@ def _register_repository(db: Session, repo_dir, name: str, source_type: str,
     db.add(repo)
     db.commit()
     return repo
+
+
+def _run_examination_task(examination_id: str) -> None:
+    db = SessionLocal()
+    try:
+        run_examination(db, examination_id)
+    finally:
+        db.close()
+
+
+@router.post("", status_code=201)
+def frontend_intake(
+    payload: FrontendRepositorySubmission,
+    background: BackgroundTasks,
+    db: Session = Depends(get_db),
+):
+    """Compose GitHub intake and examination for the existing Vite UI."""
+    try:
+        repo_dir, name, default_branch = intake.clone_github_repository(str(payload.url))
+    except intake.IntakeError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    repo = _register_repository(db, repo_dir, name, "github", str(payload.url), default_branch)
+    exam = Examination(repository_id=repo.id, status="pending")
+    db.add(exam)
+    db.commit()
+    background.add_task(_run_examination_task, exam.id)
+    return {"id": exam.id, "status": "running"}
 
 
 @router.post("/github", response_model=RepositoryOut, status_code=201)

@@ -126,3 +126,46 @@ def test_invalid_github_url_is_rejected(client):
     response = client.post("/api/repositories/github", json={"url": "https://gitlab.com/a/b"})
     assert response.status_code == 400
     assert "GitHub" in response.json()["detail"]
+
+
+def test_vite_frontend_contract(client, messy_repo, monkeypatch):
+    from app.api import repositories
+
+    monkeypatch.setattr(
+        repositories.intake,
+        "clone_github_repository",
+        lambda url: (messy_repo, "messy-demo", "main"),
+    )
+    submitted = client.post(
+        "/api/repositories",
+        json={"source": "github", "url": "https://github.com/example/messy-demo"},
+    )
+    assert submitted.status_code == 201, submitted.text
+    examination_id = submitted.json()["id"]
+
+    progress = client.get(f"/api/examinations/{examination_id}/progress").json()
+    assert progress["stage"] == "Examination complete"
+    assert progress["completed"] == progress["total"]
+    assert progress["message"]
+
+    report = client.get(f"/api/examinations/{examination_id}")
+    assert report.status_code == 200, report.text
+    body = report.json()
+    assert body["repository"] == "messy-demo"
+    assert body["defaultBranch"] == "main"
+    assert body["fileCount"] == 8
+    assert body["score"] < 100
+    assert body["checks"] and body["diagnoses"]
+    assert {item["severity"] for item in body["diagnoses"]} <= {"critical", "warning", "info"}
+
+
+def test_vite_origin_is_allowed_by_cors(client):
+    response = client.options(
+        "/api/repositories",
+        headers={
+            "Origin": "http://localhost:5173",
+            "Access-Control-Request-Method": "POST",
+        },
+    )
+    assert response.status_code == 200
+    assert response.headers["access-control-allow-origin"] == "http://localhost:5173"

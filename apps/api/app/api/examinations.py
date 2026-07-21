@@ -32,12 +32,53 @@ def start_examination(repository_id: str, background: BackgroundTasks, db: Sessi
     return exam
 
 
-@router.get("/examinations/{examination_id}", response_model=ExaminationOut)
+@router.get("/examinations/{examination_id}")
 def get_examination(examination_id: str, db: Session = Depends(get_db)):
     exam = db.get(Examination, examination_id)
     if exam is None:
         raise HTTPException(status_code=404, detail="Examination not found.")
-    return exam
+    if exam.status != "completed":
+        return ExaminationOut.model_validate(exam).model_dump(mode="json")
+
+    repo = db.get(Repository, exam.repository_id)
+    diagnoses = (
+        db.query(Diagnosis)
+        .filter(Diagnosis.examination_id == examination_id)
+        .order_by(Diagnosis.priority_rank)
+        .all()
+    )
+    severity_map = {
+        "critical": "critical",
+        "high": "warning",
+        "medium": "warning",
+        "low": "info",
+        "info": "info",
+    }
+    frontend_diagnoses = []
+    for diagnosis in diagnoses:
+        affected = diagnosis.files[0] if diagnosis.files else None
+        path = affected.file_path if affected else "Repository"
+        if affected and affected.start_line:
+            path = f"{path}:{affected.start_line}"
+        frontend_diagnoses.append({
+            "severity": severity_map.get(diagnosis.severity, "info"),
+            "title": diagnosis.title,
+            "path": path,
+            "confidence": f"{round(diagnosis.confidence * 100)}%",
+            "detail": diagnosis.explanation,
+        })
+    return {
+        "repository": repo.name,
+        "defaultBranch": repo.default_branch or "unknown",
+        "fileCount": exam.files_examined,
+        "languages": list((repo.languages or {}).keys())[:4],
+        "score": exam.health_score,
+        "checks": [
+            {"label": label.title(), "value": value}
+            for label, value in (exam.dimension_scores or {}).items()
+        ],
+        "diagnoses": frontend_diagnoses,
+    }
 
 
 @router.get("/examinations/{examination_id}/progress", response_model=ExaminationProgress)
@@ -45,6 +86,13 @@ def get_progress(examination_id: str, db: Session = Depends(get_db)):
     exam = db.get(Examination, examination_id)
     if exam is None:
         raise HTTPException(status_code=404, detail="Examination not found.")
+    completed_count = len(exam.completed_stages)
+    stage = exam.current_stage or "Preparing examination"
+    if exam.status == "completed":
+        completed_count = len(EXAMINATION_STAGES)
+        stage = "Examination complete"
+    elif exam.status == "failed":
+        stage = "Examination failed"
     return ExaminationProgress(
         examination_id=exam.id,
         status=exam.status,
@@ -52,6 +100,14 @@ def get_progress(examination_id: str, db: Session = Depends(get_db)):
         completed_stages=exam.completed_stages,
         all_stages=EXAMINATION_STAGES,
         error_message=exam.error_message,
+        stage=stage,
+        completed=completed_count,
+        total=len(EXAMINATION_STAGES),
+        message=exam.error_message or (
+            "Repository health record is ready."
+            if exam.status == "completed"
+            else "Repo Doctor is examining the repository."
+        ),
     )
 
 

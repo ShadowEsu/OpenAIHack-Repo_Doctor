@@ -19,7 +19,7 @@ class Settings(BaseSettings):
     clone_timeout_seconds: int = 120
     command_timeout_seconds: int = 180
     allow_dependency_install: bool = False
-    cors_origins: str = "http://localhost:3000"
+    cors_origins: str = "http://localhost:3000,http://localhost:5173,http://127.0.0.1:5173"
 
     @property
     def workspace_path(self) -> Path:
