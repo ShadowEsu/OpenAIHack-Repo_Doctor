@@ -36,10 +36,11 @@ async function githubJson<T>(path: string): Promise<T> {
   return response.json() as Promise<T>;
 }
 
-async function readTextFile(owner: string, repository: string, path: string) {
+export async function getRepositoryFileText(owner: string, repository: string, path: string) {
   try {
+    if (!/^[A-Za-z0-9._/-]+$/.test(path) || path.includes("..")) return null;
     const content = await githubJson<{ content?: string; encoding?: string }>(
-      `/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repository)}/contents/${encodeURIComponent(path)}`,
+      `/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repository)}/contents/${path.split("/").map(encodeURIComponent).join("/")}`,
     );
     if (content.encoding !== "base64" || !content.content) return null;
     return Buffer.from(content.content.replace(/\n/g, ""), "base64").toString("utf8").slice(0, 12_000);
@@ -61,7 +62,7 @@ export async function getRepositorySnapshot(input: { owner: string; repository: 
     .slice(0, 350);
   const candidateFiles = ["package.json", "README.md", "pyproject.toml", "requirements.txt", "go.mod", "Cargo.toml"];
   const manifests = Object.fromEntries(
-    (await Promise.all(candidateFiles.filter((path) => files.includes(path)).map(async (path) => [path, await readTextFile(input.owner, input.repository, path)] as const)))
+    (await Promise.all(candidateFiles.filter((path) => files.includes(path)).map(async (path) => [path, await getRepositoryFileText(input.owner, input.repository, path)] as const)))
       .filter(([, content]) => content !== null),
   ) as Record<string, string>;
 
