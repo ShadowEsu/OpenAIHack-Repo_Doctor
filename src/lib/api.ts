@@ -2,7 +2,7 @@ import type { ApiError, Examination, ExaminationProgress, HealthRecord, Reposito
 const configuredBaseUrl = import.meta.env.VITE_API_BASE_URL?.replace(/\/$/, '');
 // The bundled service is the zero-configuration local development target. A
 // deployed app must explicitly provide its API URL through VITE_API_BASE_URL.
-const baseUrl = configuredBaseUrl || (window.location.hostname === 'localhost' ? 'http://localhost:8787/api' : '');
+const baseUrl = configuredBaseUrl || (window.location.hostname === 'localhost' ? 'http://localhost:8787/api' : '/api');
 export const apiConfigured = Boolean(baseUrl);
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
   if (!baseUrl) throw { message: 'The Repo Doctor backend has not been configured.', code: 'BACKEND_UNAVAILABLE' } satisfies ApiError;
