@@ -6,7 +6,7 @@
 
 Connect a public GitHub repository. See the signal. Review the next safe repair.
 
-[**Open Repo Doctor →**](https://repo-doctor-two.vercel.app) &nbsp;·&nbsp; [Launch website](https://website-six-khaki-20.vercel.app) &nbsp;·&nbsp; [Report an issue](https://github.com/ShadowEsu/OpenAIHack-Repo_Doctor/issues)
+[**Open the app →**](https://repo-doctor-two.vercel.app) &nbsp;·&nbsp; [**Visit the launch website →**](https://website-six-khaki-20.vercel.app) &nbsp;·&nbsp; [Report an issue](https://github.com/ShadowEsu/OpenAIHack-Repo_Doctor/issues)
 
 <br />
 
@@ -102,9 +102,12 @@ src/
 
 **Next.js 16** · **React 19** · **TypeScript** · **Tailwind CSS 4** · **Framer Motion** · **Vercel**
 
-## Deployment
+## Live links
 
-The production app is deployed on Vercel: [repo-doctor-two.vercel.app](https://repo-doctor-two.vercel.app).
+| Destination | Link |
+| --- | --- |
+| **Repo Doctor app** | [repo-doctor-two.vercel.app](https://repo-doctor-two.vercel.app) |
+| **Launch website** | [website-six-khaki-20.vercel.app](https://website-six-khaki-20.vercel.app) |
 
 For production, configure `GROQ_API_KEY` as an encrypted Vercel environment variable. Do not use a `NEXT_PUBLIC_` prefix and do not commit credentials.
 
